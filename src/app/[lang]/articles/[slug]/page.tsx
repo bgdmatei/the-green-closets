@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getPostBySlug, getPostsByLocale } from "@/features/blog/api/blog.services";
+import { getPostBySlug, getPosts } from "@/features/blog/api/blog.services";
 import { PostContent } from "@/features/blog/components/post-content";
 import { getEnv } from "@/lib/env";
 import { isValidLocale, locales, type Locale } from "@/lib/i18n";
@@ -20,7 +20,7 @@ interface BlogPostPageProps {
 export const generateStaticParams = async (): Promise<Array<{ lang: Locale; slug: string }>> => {
   const combinations = await Promise.all(
     locales.map(async (locale) => {
-      const posts = await getPostsByLocale(locale);
+      const posts = await getPosts();
       return posts.map((post) => ({ lang: locale, slug: post.slug }));
     })
   );

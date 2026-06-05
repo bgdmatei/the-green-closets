@@ -16,7 +16,10 @@ export const generateStaticParams = (): Array<{ lang: Locale }> => {
   return locales.map((lang) => ({ lang }));
 };
 
-export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
+export default async function LocaleLayout({
+  children,
+  params,
+}: LocaleLayoutProps) {
   const { lang } = await params;
 
   if (!isValidLocale(lang)) {
@@ -24,12 +27,22 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-4xl px-4 py-10 sm:px-6 bg-background">
+    <div className="mx-auto min-h-screen w-full lg:max-w-6xl py-10 bg-background overflow-clip md:overflow-visible">
       <header className="mb-8 flex flex-col items-center justify-center pb-4 gap-2">
-        <Link className="text-secondary text-4xl font-bold uppercase" href={`/${lang}`}>
+        <Link
+          className="text-secondary text-4xl font-normal uppercase"
+          href={`/${lang}`}
+        >
           THE GREEN CLOSETS
         </Link>
-        <Text as='p' size='sm' weight='semibold' className="text-secondary uppercase">Sustainable style made easy</Text>
+        <Text
+          as="p"
+          size="sm"
+          weight="light"
+          className="text-secondary uppercase"
+        >
+          Sustainable style made easy
+        </Text>
         {/* <nav className="flex items-center gap-4 text-sm">
           {locales.map((item) => (
             <Link

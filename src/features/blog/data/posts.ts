@@ -1,31 +1,38 @@
 import type { BlogPost } from "@/features/blog/types/blog.types";
 
+export const enum ArticleTypes {
+  TopPage = "top-page",
+  WeeksPicks = "weeks-picks",
+  LatestArticle = "latest-article",
+}
+
 export const posts: BlogPost[] = [
   {
-    slug: "nextjs-blog-architecture",
+    slug: "what-is-sustainable-fashion",
     locale: "en",
-    title: "A Small, Scalable Next.js Blog Architecture",
-    excerpt: "A practical structure for a frontend-only multilingual blog.",
-    contentHtml:
-      "<p>This article shows a minimal architecture for a secure and fast frontend-only blog.</p><h2>Why this setup works</h2><p>It keeps routing, rendering, and feature modules focused.</p>",
+    type: ArticleTypes.TopPage,
+    title: "What Is Sustainable Fashion?",
+    excerpt: "Let's make our shopping easy and sustainable",
+    contentHtml: "- [x] Finish my changes",
     categorySlug: "architecture",
     categoryName: "Architecture",
-    publishedAt: "2026-03-20",
+    publishedAt: "19th of April",
   },
   {
     slug: "seo-checklist-for-content-sites",
     locale: "en",
+    type: ArticleTypes.LatestArticle,
     title: "SEO Checklist for Content Websites",
     excerpt: "Canonical URLs, hreflang, and metadata in one clean setup.",
     contentHtml:
-      "<p>For multilingual blogs, canonical and hreflang are mandatory. Keep your metadata centralized.</p>",
+      "For multilingual blogs, canonical and hreflang are mandatory. Keep your metadata centralized. For multilingual blogs, canonical and hreflang are mandatory. Keep your metadata centralized. For multilingual blogs, canonical and hreflang are mandatory. Keep your metadata centralized.",
     categorySlug: "seo",
     categoryName: "SEO",
     publishedAt: "2026-03-18",
   },
   {
     slug: "arquitectura-blog-nextjs",
-    locale: "es",
+    type: ArticleTypes.LatestArticle,
     title: "Arquitectura de Blog en Next.js",
     excerpt: "Como estructurar un blog pequeno, rapido y mantenible.",
     contentHtml:

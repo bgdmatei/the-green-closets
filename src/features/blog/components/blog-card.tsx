@@ -8,7 +8,7 @@ interface BlogCardProps {
   locale: Locale;
 }
 
-export const BlogCard = ({ post, locale }: BlogCardProps) => {
+export const BlogCard = ({ post }: BlogCardProps) => {
   return (
     <article className="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
       <p className="text-xs uppercase tracking-wide text-zinc-500">{post.categoryName}</p>
@@ -18,7 +18,7 @@ export const BlogCard = ({ post, locale }: BlogCardProps) => {
         <time className="text-xs text-zinc-500">{post.publishedAt}</time>
         <Link
           className="text-sm font-medium text-blue-700 hover:underline"
-          href={`/${locale}/blog/${post.slug}`}
+          href={`/articles/${post.slug}`}
         >
           Read article
         </Link>

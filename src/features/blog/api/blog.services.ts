@@ -7,9 +7,8 @@ import type { Locale } from "@/lib/i18n";
 /**
  * Returns all posts for a locale sorted by newest first.
  */
-export const getPostsByLocale = cache(async (locale: Locale): Promise<BlogPost[]> => {
+export const getPosts = cache(async (): Promise<BlogPost[]> => {
   const filtered = posts
-    .filter((post) => post.locale === locale)
     .toSorted((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
   return filtered;
 });
@@ -26,7 +25,7 @@ export const getPostBySlug = cache(async (locale: Locale, slug: string): Promise
  * Returns all categories that have posts for a locale.
  */
 export const getCategoriesByLocale = cache(async (locale: Locale): Promise<BlogCategory[]> => {
-  const localePosts = await getPostsByLocale(locale);
+  const localePosts = await getPosts();
   const map = new Map<string, BlogCategory>();
 
   for (const post of localePosts) {
@@ -47,7 +46,7 @@ export const getCategoriesByLocale = cache(async (locale: Locale): Promise<BlogC
  */
 export const getPostsByCategory = cache(
   async (locale: Locale, categorySlug: string): Promise<BlogPost[]> => {
-    const localePosts = await getPostsByLocale(locale);
+    const localePosts = await getPosts();
     return localePosts.filter((post) => post.categorySlug === categorySlug);
   }
 );

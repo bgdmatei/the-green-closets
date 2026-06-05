@@ -1,8 +1,10 @@
 import type { Locale } from "@/lib/i18n";
+import { ArticleTypes } from "../data/posts";
 
 export interface BlogPost {
   slug: string;
-  locale: Locale;
+  locale?: Locale;
+  type: ArticleTypes;
   title: string;
   excerpt: string;
   contentHtml: string;

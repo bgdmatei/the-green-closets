@@ -2,22 +2,23 @@
 
 :root {
   --background: oklch(0.96 0.01 0);
-  --foreground: oklch(9 0 0);
-  --primary: oklch(0.9558 0.0045 78.3);
-  --secondary: oklch(0.403 0.0377 195.76); /* #2f4f4f */
+  --foreground: oklch(0.4 0.04 195.75);
+  --primary: oklch(0.9558 0.0045 78.3); /* brand white */
+  --secondary: oklch(0.403 0.0377 195.76); /* brand green */
+  --border: oklch(0.4202 0 0); /* border gray */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --primary: var(--primary);
-  --secondary: var(--secondary);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-border: var(--border);
   --font-body: var(--font-sans);
-  --font-mono: var(--font-sans);
+  --font-title: var(--font-serif);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  /* font-family: var(--font-body), Arial, Helvetica, sans-serif; */
 }

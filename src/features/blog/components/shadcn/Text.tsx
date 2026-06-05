@@ -5,11 +5,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 const textVariants = cva("", {
   variants: {
     variant: {
-      default: "text-foreground",
-      muted: "text-muted-foreground",
-      primary: "text-primary",
+      default: "text-primary",
+      secondary: "text-secondary",
     },
     size: {
+      xxs: 'text-[10px]',
       xs: "text-xs",
       sm: "text-sm",
       md: "text-base",
@@ -18,8 +18,10 @@ const textVariants = cva("", {
       "2xl": "text-2xl",
       "3xl": "text-3xl",
       "4xl": "text-4xl",
+      "5xl": "text-5xl",
     },
     weight: {
+      light: 'font-light',
       normal: "font-normal",
       medium: "font-medium",
       semibold: "font-semibold",

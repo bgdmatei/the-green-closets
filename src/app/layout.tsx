@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import { Playfair_Display, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
-const inter = Playfair_Display({
+const playfair = Playfair_Display({
   variable: "--font-sans",
+  subsets: ["latin"],
+});
+const source = Source_Serif_4({
+  variable: "--font-sans-serif",
   subsets: ["latin"],
 });
 
@@ -15,14 +19,22 @@ export const metadata: Metadata = {
   description: "SUSTAINABLE STYLE MADE EASY",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full bg-zinc-50 text-zinc-900">{children}</body>
+    <html
+      lang="en"
+      className={`${playfair.variable} ${source.variable} h-full w-full antialiased`}
+    >
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
