@@ -3,55 +3,45 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import type { PolymorphicProps } from "./polymorphic";
 
-const headingVariants = cva("font-display text-balance", {
-  variants: {
-    tone: {
-      default: "text-ink",
-      muted: "text-ink-muted",
-      inverse: "text-ink-inverse",
-      brand: "text-brand",
+const headingVariants = cva(
+  "font-display font-normal text-balance tracking-[-0.01em]",
+  {
+    variants: {
+      tone: {
+        default: "text-ink",
+        muted: "text-ink-muted",
+        inverse: "text-ink-inverse",
+        brand: "text-brand",
+      },
+      /**
+       * Visual size, deliberately separate from the element. Pick `as` for
+       * document structure and `size` for how loud it should look.
+       */
+      size: {
+        xs: "text-step-2",
+        sm: "text-step-3",
+        md: "text-step-4",
+        lg: "text-step-5",
+      },
+      align: {
+        left: "text-left",
+        center: "text-center",
+        right: "text-right",
+      },
+      leading: {
+        none: "leading-none",
+        tight: "leading-[1.05]",
+        normal: "leading-snug",
+      },
     },
-    /**
-     * Visual size, deliberately separate from the element. Pick `as` for
-     * document structure and `size` for how loud it should look.
-     */
-    size: {
-      xs: "text-step-1",
-      sm: "text-step-2",
-      md: "text-step-3",
-      lg: "text-step-4",
-      xl: "text-step-5",
-    },
-    weight: {
-      light: "font-light",
-      normal: "font-normal",
-      medium: "font-medium",
-      semibold: "font-semibold",
-    },
-    align: {
-      left: "text-left",
-      center: "text-center",
-      right: "text-right",
-    },
-    leading: {
-      none: "leading-none",
-      tight: "leading-tight",
-      normal: "leading-normal",
-    },
-    uppercase: {
-      true: "uppercase tracking-[0.08em]",
-      false: "",
+    defaultVariants: {
+      tone: "default",
+      size: "md",
+      align: "left",
+      leading: "tight",
     },
   },
-  defaultVariants: {
-    tone: "default",
-    size: "md",
-    weight: "normal",
-    align: "left",
-    leading: "tight",
-    uppercase: false,
-  },
-});
+);
 
 /**
  * `p`, `span` and `div` are here for display type that is not part of the
@@ -72,16 +62,24 @@ type HeadingElement =
 type HeadingProps<T extends HeadingElement> = PolymorphicProps<
   T,
   VariantProps<typeof headingVariants>
->;
+> & {
+  /**
+   * Rendered in the display face's italic, immediately after `children`.
+   *
+   * This is the signature of the design — "Read the *journal*", "New in the
+   * *closet*" — so it is a first-class prop rather than markup callers have to
+   * remember to write.
+   */
+  accent?: React.ReactNode;
+};
 
 export function Heading<T extends HeadingElement = "h2">({
   as,
   tone,
   size,
-  weight,
   align,
   leading,
-  uppercase,
+  accent,
   className,
   children,
   ...props
@@ -89,13 +87,16 @@ export function Heading<T extends HeadingElement = "h2">({
   const Tag = (as ?? "h2") as React.ElementType;
   return (
     <Tag
-      className={cn(
-        headingVariants({ tone, size, weight, align, leading, uppercase }),
-        className,
-      )}
+      className={cn(headingVariants({ tone, size, align, leading }), className)}
       {...props}
     >
       {children}
+      {accent ? (
+        <>
+          {children ? " " : null}
+          <em className="italic">{accent}</em>
+        </>
+      ) : null}
     </Tag>
   );
 }

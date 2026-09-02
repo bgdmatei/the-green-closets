@@ -1,21 +1,22 @@
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { ButtonLink } from "@/components/ui/link";
-import { Text } from "@/components/ui/text";
 
 export default function NotFound() {
   return (
     <Container
       width="prose"
-      className="flex flex-col items-center gap-6 py-24 text-center"
+      className="flex flex-col items-center gap-6 py-28 text-center"
     >
-      <Heading as="h1" size="lg">
-        Page not found
+      <Heading as="h1" size="lg" accent="found">
+        Page not
       </Heading>
-      <Text tone="muted" align="center">
+      <p className="text-step-1 leading-relaxed text-ink-muted">
         The page you requested does not exist or is no longer available.
-      </Text>
-      <ButtonLink href="/">Back to articles</ButtonLink>
+      </p>
+      <ButtonLink href="/" variant="outline">
+        Back to the shop
+      </ButtonLink>
     </Container>
   );
 }

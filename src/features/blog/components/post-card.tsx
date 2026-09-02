@@ -1,19 +1,13 @@
-import { ChevronRightIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { Heading } from "@/components/ui/heading";
-import { TextLink } from "@/components/ui/link";
-import { Text } from "@/components/ui/text";
 import { formatPublishedDate } from "@/features/blog/lib/format-date";
 import type { BlogPost } from "@/features/blog/types/blog.types";
 
 interface PostCardProps {
   post: BlogPost;
-  /**
-   * `feature` is the house-green panel used for the homepage grid; `default`
-   * is the lighter card used in category listings.
-   */
+  /** `feature` gives the lead article a larger display size. */
   variant?: "default" | "feature";
 }
 
@@ -21,54 +15,34 @@ export const PostCard = ({ post, variant = "default" }: PostCardProps) => {
   const isFeature = variant === "feature";
 
   return (
-    <Card
-      as="article"
-      surface={isFeature ? "raised" : "plain"}
-      className="h-full gap-3"
-    >
-      <Badge variant={isFeature ? "inverse" : "outline"} className="self-start">
-        {post.categoryName}
-      </Badge>
-
-      <Heading
-        as="h3"
-        size="sm"
-        tone={isFeature ? "inverse" : "default"}
-        className="text-pretty"
+    <article className="h-full">
+      <Link
+        href={`/articles/${post.slug}`}
+        className="group flex h-full flex-col gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
-        {post.title}
-      </Heading>
+        <div className="flex items-baseline justify-between gap-3">
+          <Eyebrow as="span">{post.categoryName}</Eyebrow>
+          <time className="text-step--2 text-ink-muted" dateTime={post.publishedAt}>
+            {formatPublishedDate(post.publishedAt)}
+          </time>
+        </div>
 
-      <Text
-        size="sm"
-        weight="light"
-        tone={isFeature ? "inverse" : "muted"}
-        leading="relaxed"
-        className="line-clamp-3"
-      >
-        {post.excerpt}
-      </Text>
+        <Heading
+          as="h3"
+          size={isFeature ? "md" : "sm"}
+          className="group-hover:underline underline-offset-[6px] decoration-from-font"
+        >
+          {post.title}
+        </Heading>
 
-      <div className="mt-auto flex items-center justify-between gap-4 pt-4">
-        <Text
-          as="time"
-          size="xs"
-          tone={isFeature ? "inverse" : "muted"}
-          dateTime={post.publishedAt}
-        >
-          {formatPublishedDate(post.publishedAt)}
-        </Text>
-        <TextLink
-          href={`/articles/${post.slug}`}
-          size="xs"
-          tone={isFeature ? "inverse" : "default"}
-          underline="always"
-        >
-          Read more
-          <ChevronRightIcon aria-hidden width={14} height={14} />
-          <span className="sr-only">: {post.title}</span>
-        </TextLink>
-      </div>
-    </Card>
+        <p className="text-step-0 leading-relaxed text-ink-muted">
+          {post.excerpt}
+        </p>
+
+        <span className="mt-auto pt-4 font-display text-step-1 italic text-ink">
+          Read more <span aria-hidden>&rarr;</span>
+        </span>
+      </Link>
+    </article>
   );
 };

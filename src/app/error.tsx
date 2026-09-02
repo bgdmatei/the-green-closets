@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
-import { Text } from "@/components/ui/text";
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -22,15 +21,17 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
     <Container
       width="prose"
-      className="flex flex-col items-center gap-6 py-24 text-center"
+      className="flex flex-col items-center gap-6 py-28 text-center"
     >
-      <Heading as="h1" size="lg">
-        Something went wrong
+      <Heading as="h1" size="lg" accent="wrong">
+        Something went
       </Heading>
-      <Text tone="muted" align="center">
+      <p className="text-step-1 leading-relaxed text-ink-muted">
         This page failed to load. Trying again usually fixes it.
-      </Text>
-      <Button onClick={reset}>Try again</Button>
+      </p>
+      <Button variant="outline" onClick={reset}>
+        Try again
+      </Button>
     </Container>
   );
 }

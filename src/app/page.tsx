@@ -1,134 +1,80 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { ChevronRightIcon } from "@radix-ui/react-icons";
 
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
-import { Divider } from "@/components/ui/divider";
-import { FullBleed } from "@/components/ui/full-bleed";
-import { Heading } from "@/components/ui/heading";
-import { TextLink } from "@/components/ui/link";
-import { Text } from "@/components/ui/text";
-import { getPosts } from "@/features/blog/api/blog.services";
-import { PostCard } from "@/features/blog/components/post-card";
-import { formatPublishedDate } from "@/features/blog/lib/format-date";
-import { ArticleTypes } from "@/features/blog/types/blog.types";
+import { MediaTile } from "@/components/ui/media-tile";
+import { SectionHeader } from "@/components/ui/section-header";
+import { getNewArrivals } from "@/features/shop/api/shop.services";
+import { ProductGrid } from "@/features/shop/components/product-grid";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const generateMetadata = async (): Promise<Metadata> =>
   buildPageMetadata({
-    title: "Sustainable style made easy",
+    title: "The Green Closets — ethical shop",
     description:
-      "Guides and essays on building a wardrobe that lasts — fibre choice, transparency, and buying less but better.",
+      "An independent shop stitching together live product feeds from fashion brands we curate and rate ourselves.",
     path: "/",
   });
 
 export default async function Homepage() {
-  const posts = await getPosts();
-
-  const topPick = posts.find((post) => post.type === ArticleTypes.TopPick);
-  // The featured post already has the hero; don't repeat it in the grid below.
-  const latest = posts.filter((post) => post.slug !== topPick?.slug);
+  const newArrivals = await getNewArrivals(8);
 
   return (
-    <div className="space-y-16">
-      {topPick ? (
-        <Container as="section" aria-labelledby="top-pick-heading">
-          <div className="md:relative">
-            <Image
-              className="w-full rounded-xl object-cover"
-              src="/images/homepage/flowers.jpg"
-              alt=""
-              width={685}
-              height={407}
+    <>
+      <section className="border-b border-border py-6 md:py-8">
+        <Container>
+          <h1 className="sr-only">The Green Closets — ethical shop</h1>
+          <div className="grid gap-6 md:grid-cols-2">
+            <MediaTile
+              href="/journal"
+              src="/images/banners/blog.jpg"
+              eyebrow="The journal"
+              title="Read the"
+              accent="journal"
+              action="Guides & interviews"
               priority
-              sizes="(min-width: 1152px) 1104px, 100vw"
+              sizes="(min-width: 768px) 604px, 100vw"
             />
-
-            <Card
-              surface="raised"
-              padding="lg"
-              className="-mt-8 mx-4 gap-4 md:absolute md:inset-y-8 md:right-8 md:mx-0 md:mt-0 md:w-[46%] md:justify-center"
-            >
-              <Badge variant="inverse" className="self-start">
-                {topPick.categoryName}
-              </Badge>
-              <Heading
-                as="h1"
-                id="top-pick-heading"
-                size="lg"
-                tone="inverse"
-                className="text-pretty"
-              >
-                {topPick.title}
-              </Heading>
-              <Text size="sm" weight="light" tone="inverse" leading="relaxed">
-                {topPick.excerpt}
-              </Text>
-              <div className="flex items-center justify-between gap-4 pt-2">
-                <Text
-                  as="time"
-                  size="xs"
-                  tone="inverse"
-                  dateTime={topPick.publishedAt}
-                >
-                  {formatPublishedDate(topPick.publishedAt)}
-                </Text>
-                <TextLink
-                  href={`/articles/${topPick.slug}`}
-                  size="xs"
-                  tone="inverse"
-                  underline="always"
-                >
-                  Read more
-                  <ChevronRightIcon aria-hidden width={14} height={14} />
-                  <span className="sr-only">: {topPick.title}</span>
-                </TextLink>
-              </div>
-            </Card>
+            <MediaTile
+              href="/shop"
+              src="/images/banners/shop.jpg"
+              eyebrow="The shop"
+              title="Shop"
+              accent="every brand"
+              action="Browse the edit"
+              priority
+              sizes="(min-width: 768px) 604px, 100vw"
+            />
           </div>
         </Container>
-      ) : null}
+      </section>
 
-      <FullBleed aria-labelledby="latest-heading">
-        <Container className="space-y-8">
-          <Divider />
-          <Heading
-            as="h2"
-            id="latest-heading"
-            size="md"
-            tone="brand"
-            uppercase
-            align="center"
-          >
-            Latest articles
-          </Heading>
-          <ul className="grid gap-6 md:grid-cols-3">
-            {latest.map((post) => (
-              <li key={post.slug} className="contents">
-                <PostCard post={post} variant="feature" />
-              </li>
-            ))}
-          </ul>
+      <section className="border-b border-border py-6 md:py-8">
+        <Container>
+          <MediaTile
+            href="/week-picks"
+            src="/images/banners/weekly.jpg"
+            ratio="banner"
+            eyebrow="Fresh every Monday"
+            title="This week's"
+            accent="picks"
+            action="See the edit"
+            actionAsButton
+            sizes="(min-width: 1280px) 1232px, 100vw"
+          />
         </Container>
-      </FullBleed>
+      </section>
 
-      <FullBleed aria-labelledby="connected-heading">
-        <Container className="space-y-8">
-          <Divider />
-          <Heading
-            as="h2"
-            id="connected-heading"
-            size="md"
-            tone="brand"
-            uppercase
-            align="center"
-          >
-            Let&apos;s stay connected
-          </Heading>
+      <section className="py-14 md:py-20" aria-labelledby="new-in-heading">
+        <Container className="space-y-10">
+          <SectionHeader
+            id="new-in-heading"
+            title="New in the"
+            accent="closet"
+            action={{ href: "/shop", label: "View all" }}
+          />
+          <ProductGrid products={newArrivals} priorityCount={4} />
         </Container>
-      </FullBleed>
-    </div>
+      </section>
+    </>
   );
 }

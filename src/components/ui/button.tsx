@@ -7,21 +7,24 @@ import { cn } from "@/lib/utils";
  * that look alike stay alike.
  */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors " +
+  "inline-flex items-center justify-center gap-2 transition-colors " +
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring " +
     "disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        solid: "bg-brand text-brand-contrast hover:bg-brand-hover",
-        outline:
-          "border border-border text-ink hover:bg-surface-sunken hover:border-brand",
-        ghost: "text-ink hover:bg-surface-sunken",
+        solid: "bg-ink text-surface hover:bg-ink/85",
+        outline: "border border-ink text-ink hover:bg-ink hover:text-surface",
+        /** Sits on photography: a hairline box in the inverse ink. */
+        overlay:
+          "border border-ink-inverse/70 text-ink-inverse backdrop-blur-[1px] " +
+          "hover:bg-ink-inverse hover:text-ink hover:border-ink-inverse",
+        ghost: "text-ink hover:text-ink-muted",
       },
       size: {
         sm: "h-8 px-3 text-step--1",
-        md: "h-10 px-4 text-step-0",
-        lg: "h-12 px-6 text-step-1",
+        md: "h-10 px-5 text-step-0",
+        lg: "h-12 px-7 text-step-1",
       },
     },
     defaultVariants: {

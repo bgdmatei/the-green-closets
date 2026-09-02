@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Serif_4 } from "next/font/google";
+import { Instrument_Serif, Inter } from "next/font/google";
 
 import "./globals.css";
-import { Container } from "@/components/ui/container";
-import { Heading } from "@/components/ui/heading";
-import { TextLink } from "@/components/ui/link";
-import { Text } from "@/components/ui/text";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 import { getEnv } from "@/lib/env";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "400",
+  // The italic is the display face's signature, not an optional extra.
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "600"],
   display: "swap",
 });
 
@@ -28,13 +27,14 @@ export const metadata: Metadata = {
   // Lets every route express canonical and Open Graph URLs as relative paths.
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: "THE GREEN CLOSETS",
-    template: "%s | THE GREEN CLOSETS",
+    default: "The Green Closets — ethical shop",
+    template: "%s | The Green Closets",
   },
-  description: "Sustainable style made easy.",
-  applicationName: "THE GREEN CLOSETS",
+  description:
+    "An independent shop stitching together live product feeds from fashion brands we curate and rate ourselves.",
+  applicationName: "The Green Closets",
   openGraph: {
-    siteName: "THE GREEN CLOSETS",
+    siteName: "The Green Closets",
     locale: "en_GB",
     type: "website",
   },
@@ -53,39 +53,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${sourceSerif.variable} antialiased`}
+      className={`${instrumentSerif.variable} ${inter.variable} antialiased`}
     >
       <body className="flex min-h-dvh flex-col bg-surface text-ink">
-        <Container as="header" className="py-10 text-center">
-          <TextLink href="/" tone="muted" underline="never" className="block">
-            <Heading
-              as="p"
-              size="lg"
-              tone="brand"
-              align="center"
-              uppercase
-              className="font-normal"
-            >
-              THE GREEN CLOSETS
-            </Heading>
-          </TextLink>
-          <Text
-            size="sm"
-            weight="light"
-            tone="muted"
-            align="center"
-            uppercase
-            className="mt-2"
-          >
-            Sustainable style made easy
-          </Text>
-        </Container>
-
+        <SiteHeader />
         {/*
           No width constraint here on purpose — each page section opts into a
           `Container`, so full-bleed bands can simply be full width.
         */}
-        <main className="flex-1 pb-16">{children}</main>
+        <main className="flex-1">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

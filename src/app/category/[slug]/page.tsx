@@ -3,9 +3,8 @@ import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
 import { Divider } from "@/components/ui/divider";
-import { Heading } from "@/components/ui/heading";
+import { SectionHeader } from "@/components/ui/section-header";
 import { TextLink } from "@/components/ui/link";
-import { Text } from "@/components/ui/text";
 import {
   getCategories,
   getCategoryBySlug,
@@ -56,29 +55,29 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   return (
-    <Container as="section" className="space-y-8">
-      <TextLink href="/" tone="muted" size="xs">
-        &larr; All articles
-      </TextLink>
+    <section className="py-14 md:py-20">
+      <Container className="space-y-10">
+        <TextLink href="/journal" tone="muted" size="sm" underline="hover">
+          <span aria-hidden>&larr;</span> Journal
+        </TextLink>
 
-      <header className="space-y-2">
-        <Heading as="h1" size="lg">
-          {category.name}
-        </Heading>
-        <Text size="sm" tone="muted">
-          {posts.length} {posts.length === 1 ? "article" : "articles"}
-        </Text>
-      </header>
+        <SectionHeader
+          as="h1"
+          title="Filed under"
+          accent={category.name}
+          action={{ href: "/journal", label: "All stories" }}
+        />
 
-      <Divider />
+        <Divider />
 
-      <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <li key={post.slug} className="contents">
-            <PostCard post={post} />
-          </li>
-        ))}
-      </ul>
-    </Container>
+        <ul className="grid gap-x-8 gap-y-12 md:grid-cols-3">
+          {posts.map((post) => (
+            <li key={post.slug} className="contents">
+              <PostCard post={post} />
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
   );
 }

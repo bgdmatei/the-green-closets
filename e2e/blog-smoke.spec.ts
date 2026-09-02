@@ -19,57 +19,112 @@ test("homepage serves the hardened security headers", async ({ page }) => {
   expect(csp).toContain("object-src 'none'");
   expect(csp).toContain("frame-ancestors 'none'");
   expect(csp).toContain("upgrade-insecure-requests");
+  // Product imagery is served from the brands' own stores.
+  expect(csp).toContain("https://cdn.shopify.com");
   // Static prerendering means no nonce, so inline scripts are allowed by
   // design — but `unsafe-eval` must never reach production.
   expect(csp).not.toContain("unsafe-eval");
 });
 
-test("homepage renders without CSP violations or console errors", async ({
-  page,
-}) => {
+test("homepage renders without console errors", async ({ page }) => {
   const problems: string[] = [];
 
   page.on("console", (message) => {
-    if (message.type() === "error") {
-      problems.push(message.text());
-    }
+    if (message.type() === "error") problems.push(message.text());
   });
   page.on("pageerror", (error) => problems.push(error.message));
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Latest articles" }),
+    page.getByRole("heading", { name: /New in the closet/i }),
   ).toBeVisible();
 
-  // Confirms hydration completed: a Next-rendered client bundle sets this.
-  await page.waitForFunction(() => "__NEXT_DATA__" in window || true);
   expect(problems).toEqual([]);
 });
 
-test("a reader can go from the homepage to an article", async ({ page }) => {
+test("overlay headings render in the inverse ink, not the body ink", async ({
+  page,
+}) => {
   await page.goto("/");
 
-  const title = (
-    await page.getByRole("heading", { level: 1 }).textContent()
-  )?.trim();
+  // Regression guard: tailwind-merge treated the custom `text-step-*` scale as
+  // text colours and dropped `text-ink-inverse`, rendering overlay type in the
+  // near-black body ink and making it invisible against the photograph.
+  const lightness = await page
+    .getByRole("heading", { name: /Read the journal/i })
+    .evaluate((el) => {
+      const colour = getComputedStyle(el).color;
+      const parts = colour.match(/[\d.]+/g)!.map(Number);
+      // Chromium reports wide-gamut colours as `lab(L a b)`, where the first
+      // component is already lightness on a 0-100 scale.
+      if (colour.startsWith("lab(") || colour.startsWith("oklab(")) {
+        return colour.startsWith("lab(") ? parts[0] / 100 : parts[0];
+      }
+      const [r, g, b] = parts;
+      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    });
+
+  expect(lightness).toBeGreaterThan(0.8);
+});
+
+test("the weekly banner button restyles only on its own hover", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const tile = page.locator('main a[href="/week-picks"]').first();
+  const button = page.getByText("See the edit", { exact: false }).first();
+  await button.scrollIntoViewIfNeeded();
+
+  const background = () =>
+    button.evaluate((el) => getComputedStyle(el).backgroundColor);
+
+  const initial = await background();
+
+  // Hovering the tile away from the button must leave the button alone.
+  const box = (await tile.boundingBox())!;
+  await page.mouse.move(box.x + 40, box.y + 30);
+  expect(await background()).toBe(initial);
+
+  await button.hover();
+  await expect
+    .poll(background)
+    .toBe("rgb(255, 255, 255)");
+});
+
+test("a reader can reach an article from the journal", async ({ page }) => {
+  await page.goto("/journal");
 
   await page.locator('a[href^="/articles/"]').first().click();
 
   await expect(page).toHaveURL(/\/articles\//);
-  // The featured post's own page, reached from its hero card.
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(title!);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
-test("the page does not scroll horizontally on a small viewport", async ({
+test("the shop lists products with prices", async ({ page }) => {
+  await page.goto("/shop");
+
+  const products = page.locator('a[href*="armedangels.com"]');
+  expect(await products.count()).toBeGreaterThan(0);
+  await expect(products.first()).toContainText("€");
+  // Outbound links must not leak the referrer window.
+  await expect(products.first()).toHaveAttribute("rel", /noopener/);
+});
+
+test("pages do not scroll horizontally on a small viewport", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto("/");
 
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
+  for (const path of ["/", "/shop", "/journal", "/about"]) {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    );
+    expect(overflow, `${path} overflows horizontally`).toBeLessThanOrEqual(0);
+  }
 });
 
 test("an unknown article returns a 404", async ({ page }) => {

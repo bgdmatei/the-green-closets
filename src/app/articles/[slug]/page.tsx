@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { Divider } from "@/components/ui/divider";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { Heading } from "@/components/ui/heading";
 import { TextLink } from "@/components/ui/link";
-import { Text } from "@/components/ui/text";
 import { getPostBySlug, getPosts } from "@/features/blog/api/blog.services";
 import { PostContent } from "@/features/blog/components/post-content";
 import { formatPublishedDate } from "@/features/blog/lib/format-date";
@@ -53,26 +52,42 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <Container as="article" width="prose" className="space-y-8">
-      <TextLink href="/" tone="muted" size="xs">
-        &larr; All articles
-      </TextLink>
-
-      <header className="space-y-4">
-        <TextLink href={`/category/${post.categorySlug}`} underline="never">
-          <Badge>{post.categoryName}</Badge>
+    <article className="py-14 md:py-20">
+      <Container width="prose" className="space-y-8">
+        <TextLink href="/journal" tone="muted" size="sm" underline="hover">
+          <span aria-hidden>&larr;</span> Journal
         </TextLink>
-        <Heading as="h1" size="lg" className="text-pretty">
-          {post.title}
-        </Heading>
-        <Text as="time" size="sm" tone="muted" dateTime={post.publishedAt}>
-          {formatPublishedDate(post.publishedAt)}
-        </Text>
-      </header>
 
-      <Divider />
+        <header className="space-y-5">
+          <div className="flex items-baseline justify-between gap-4">
+            <TextLink
+              href={`/category/${post.categorySlug}`}
+              tone="muted"
+              underline="hover"
+            >
+              <Eyebrow as="span">{post.categoryName}</Eyebrow>
+            </TextLink>
+            <time
+              className="text-step--2 uppercase tracking-[0.1em] text-ink-muted"
+              dateTime={post.publishedAt}
+            >
+              {formatPublishedDate(post.publishedAt)}
+            </time>
+          </div>
 
-      <PostContent contentHtml={post.contentHtml} />
-    </Container>
+          <Heading as="h1" size="lg">
+            {post.title}
+          </Heading>
+
+          <p className="font-display text-step-2 italic leading-snug text-ink-muted">
+            {post.excerpt}
+          </p>
+        </header>
+
+        <Divider />
+
+        <PostContent contentHtml={post.contentHtml} />
+      </Container>
+    </article>
   );
 }

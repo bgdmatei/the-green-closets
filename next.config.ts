@@ -20,7 +20,7 @@ const contentSecurityPolicy = [
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
     : "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://images.unsplash.com",
+  "img-src 'self' data: blob: https://images.unsplash.com https://cdn.shopify.com",
   "font-src 'self'",
   "media-src 'self'",
   "manifest-src 'self'",
@@ -53,6 +53,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        // Product imagery is served from each brand's own store, the same way
+        // the live product feed will supply it once the backend exists.
+        protocol: "https",
+        hostname: "cdn.shopify.com",
       },
     ],
   },

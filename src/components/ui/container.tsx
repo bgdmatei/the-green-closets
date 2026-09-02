@@ -3,14 +3,13 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import type { PolymorphicProps } from "./polymorphic";
 
-const containerVariants = cva("mx-auto w-full px-4 sm:px-6", {
+const containerVariants = cva("mx-auto w-full px-6", {
   variants: {
     width: {
       /** Long-form reading measure. */
-      prose: "max-w-2xl",
-      /** Default page width. */
-      default: "max-w-6xl",
-      wide: "max-w-7xl",
+      prose: "max-w-[46rem]",
+      /** Default page width: a 1232px content box at a 1440px viewport. */
+      default: "max-w-[1280px]",
     },
   },
   defaultVariants: {
