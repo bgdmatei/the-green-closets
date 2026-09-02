@@ -1,75 +1,48 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/ui/container";
-import { Divider } from "@/components/ui/divider";
-import { MediaTile } from "@/components/ui/media-tile";
-import { SectionHeader } from "@/components/ui/section-header";
-import { getCategories, getPosts } from "@/features/blog/api/blog.services";
-import { PostCard } from "@/features/blog/components/post-card";
-import { TextLink } from "@/components/ui/link";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Accent, Heading } from "@/components/ui/heading";
+import { getPosts } from "@/features/blog/api/blog.services";
+import { PostListItem } from "@/features/blog/components/post-list-item";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const generateMetadata = async (): Promise<Metadata> =>
   buildPageMetadata({
     title: "Journal",
     description:
-      "Guides and interviews on building a wardrobe that lasts — fibre choice, transparency, and buying less but better.",
+      "Guides, interviews and honest opinions on the brands and materials worth your money.",
     path: "/journal",
   });
 
 export default async function JournalPage() {
-  const [posts, categories] = await Promise.all([getPosts(), getCategories()]);
+  const posts = await getPosts();
 
   return (
-    <>
-      <section className="border-b border-border py-6 md:py-8">
-        <Container>
-          <h1 className="sr-only">Journal</h1>
-          <MediaTile
-            href={`/articles/${posts[0].slug}`}
-            src="/images/banners/blog.jpg"
-            ratio="banner"
-            eyebrow="The journal"
-            title="Read the"
-            accent="journal"
-            action="Guides & interviews"
-            priority
-            sizes="(min-width: 1280px) 1232px, 100vw"
-          />
-        </Container>
-      </section>
+    <Container width="prose" className="py-16 md:py-24">
+      <header>
+        <Eyebrow>The journal</Eyebrow>
+        <Heading as="h1" size="lg" className="mt-4">
+          Notes from a <Accent>greener</Accent> closet.
+        </Heading>
+        <p className="mt-6 max-w-xl text-lede leading-relaxed text-ink-muted">
+          Guides, interviews and honest opinions on the brands and materials
+          worth your money.
+        </p>
+      </header>
 
-      <section className="py-14 md:py-20">
-        <Container className="space-y-10">
-          <SectionHeader title="Every" accent="story" />
-
-          <nav aria-label="Categories">
-            <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              {categories.map((category) => (
-                <li key={category.slug}>
-                  <TextLink
-                    href={`/category/${category.slug}`}
-                    tone="muted"
-                    underline="hover"
-                  >
-                    {category.name}
-                  </TextLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <Divider />
-
-          <ul className="grid gap-x-8 gap-y-12 md:grid-cols-3">
-            {posts.map((post) => (
-              <li key={post.slug} className="contents">
-                <PostCard post={post} />
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
-    </>
+      {/*
+        A contents list, not a grid: hairlines between entries and nothing
+        above the first or below the last, so the column reads as one column
+        of type rather than a set of boxes.
+      */}
+      <ul className="mt-16 divide-y divide-border md:mt-24">
+        {posts.map((post) => (
+          <li key={post.slug}>
+            <PostListItem post={post} />
+          </li>
+        ))}
+      </ul>
+    </Container>
   );
 }

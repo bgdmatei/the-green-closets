@@ -73,6 +73,15 @@ type HeadingProps<T extends HeadingElement> = PolymorphicProps<
   accent?: React.ReactNode;
 };
 
+/**
+ * The display italic, for an accent that falls mid-sentence — "Notes from a
+ * *greener* closet." The `accent` prop on `Heading` only appends, so compose
+ * with this when the emphasised word is not the last one.
+ */
+export function Accent({ children }: { children: React.ReactNode }) {
+  return <em className="italic">{children}</em>;
+}
+
 export function Heading<T extends HeadingElement = "h2">({
   as,
   tone,

@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
-import { Divider } from "@/components/ui/divider";
-import { SectionHeader } from "@/components/ui/section-header";
+import { Accent, Heading } from "@/components/ui/heading";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { TextLink } from "@/components/ui/link";
 import {
   getCategories,
   getCategoryBySlug,
   getPostsByCategory,
 } from "@/features/blog/api/blog.services";
-import { PostCard } from "@/features/blog/components/post-card";
+import { PostListItem } from "@/features/blog/components/post-list-item";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const dynamicParams = false;
@@ -55,29 +55,34 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   return (
-    <section className="py-14 md:py-20">
-      <Container className="space-y-10">
-        <TextLink href="/journal" tone="muted" size="sm" underline="hover">
-          <span aria-hidden>&larr;</span> Journal
+    <Container width="prose" className="py-16 md:py-24">
+      <header>
+        <Eyebrow>Category</Eyebrow>
+        <Heading as="h1" size="lg" className="mt-4">
+          Filed under <Accent>{category.name}</Accent>
+        </Heading>
+        <p className="mt-6 max-w-xl text-lede leading-relaxed text-ink-muted">
+          {posts.length} {posts.length === 1 ? "story" : "stories"} in this
+          corner of the journal.
+        </p>
+        <TextLink
+          href="/journal"
+          tone="muted"
+          size="sm"
+          underline="hover"
+          className="mt-6"
+        >
+          <span aria-hidden>&larr;</span> All stories
         </TextLink>
+      </header>
 
-        <SectionHeader
-          as="h1"
-          title="Filed under"
-          accent={category.name}
-          action={{ href: "/journal", label: "All stories" }}
-        />
-
-        <Divider />
-
-        <ul className="grid gap-x-8 gap-y-12 md:grid-cols-3">
-          {posts.map((post) => (
-            <li key={post.slug} className="contents">
-              <PostCard post={post} />
-            </li>
-          ))}
-        </ul>
-      </Container>
-    </section>
+      <ul className="mt-16 divide-y divide-border md:mt-24">
+        {posts.map((post) => (
+          <li key={post.slug}>
+            <PostListItem post={post} />
+          </li>
+        ))}
+      </ul>
+    </Container>
   );
 }

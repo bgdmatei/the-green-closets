@@ -6,8 +6,8 @@ import type { PolymorphicProps } from "./polymorphic";
 const containerVariants = cva("mx-auto w-full px-6", {
   variants: {
     width: {
-      /** Long-form reading measure. */
-      prose: "max-w-[46rem]",
+      /** Long-form reading measure: a 720px content column inside 768px. */
+      prose: "max-w-3xl",
       /** Default page width: a 1232px content box at a 1440px viewport. */
       default: "max-w-[1280px]",
     },

@@ -127,6 +127,62 @@ test("pages do not scroll horizontally on a small viewport", async ({
   }
 });
 
+test.describe("theme", () => {
+  test("defaults to light even when the OS prefers dark", async ({ browser }) => {
+    // Light is the product decision, not a reflection of the OS setting.
+    const context = await browser.newContext({ colorScheme: "dark" });
+    const page = await context.newPage();
+    await page.goto("/journal");
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await context.close();
+  });
+
+  test("the toggle switches theme and the choice survives a reload", async ({
+    page,
+  }) => {
+    await page.goto("/journal");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+    await page.getByRole("button", { name: /switch to dark theme/i }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    // And back again.
+    await page.getByRole("button", { name: /switch to light theme/i }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  });
+
+  test("dark is applied before paint, with no flash of light", async ({
+    page,
+  }) => {
+    await page.goto("/journal");
+    await page.evaluate(() => localStorage.setItem("tgc-theme", "dark"));
+
+    // The inline head script must set the attribute in the initial HTML pass,
+    // before any stylesheet paints, so the first observable state is dark.
+    await page.goto("/journal", { waitUntil: "commit" });
+    const atCommit = await page.evaluate(
+      () => document.documentElement.dataset.theme,
+    );
+    expect(atCommit).toBe("dark");
+  });
+});
+
+test("the journal marks the current section in the nav", async ({ page }) => {
+  await page.goto("/journal");
+  await expect(page.getByRole("link", { name: "Journal" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page.getByRole("link", { name: "Shop all" })).not.toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+});
+
 test("an unknown article returns a 404", async ({ page }) => {
   const response = await page.goto("/articles/does-not-exist");
   expect(response?.status()).toBe(404);

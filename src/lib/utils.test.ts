@@ -13,6 +13,13 @@ describe("cn", () => {
     expect(result).toContain("text-step-4");
   });
 
+  it("keeps the lede size and a text colour together", () => {
+    const result = cn("text-ink-muted", "text-lede");
+
+    expect(result).toContain("text-ink-muted");
+    expect(result).toContain("text-lede");
+  });
+
   it("still collapses genuinely conflicting sizes", () => {
     expect(cn("text-step-2", "text-step-4")).toBe("text-step-4");
   });
