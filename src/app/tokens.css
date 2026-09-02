@@ -17,6 +17,8 @@
  */
 
 :root {
+  color-scheme: light;
+
   /* Grounds */
   --surface: oklch(0.972 0.008 85); /* page */
   --surface-raised: oklch(0.93 0.01 80); /* image wells, tonal panels */
@@ -62,26 +64,31 @@
   --shadow-raised: 0 1px 2px oklch(0.18 0.005 60 / 0.04);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface: oklch(0.17 0.004 60);
-    --surface-raised: oklch(0.23 0.006 65);
-    --surface-sunken: oklch(0.14 0.004 60);
-    --surface-inverse: oklch(0.95 0.008 85);
+/*
+ * Dark is opt-in via `data-theme="dark"` on <html>, not `prefers-color-scheme`.
+ * Light is the default for everyone, whatever their OS is set to; the toggle in
+ * the header is the only thing that switches it.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
 
-    --ink: oklch(0.95 0.008 85);
-    --ink-muted: oklch(0.7 0.008 75);
-    --ink-inverse: oklch(0.95 0.008 85);
+  --surface: oklch(0.17 0.004 60);
+  --surface-raised: oklch(0.23 0.006 65);
+  --surface-sunken: oklch(0.14 0.004 60);
+  --surface-inverse: oklch(0.95 0.008 85);
 
-    --brand: oklch(0.72 0.05 195.76);
-    --brand-contrast: oklch(0.16 0.02 195.76);
-    --brand-hover: oklch(0.8 0.05 195.76);
+  --ink: oklch(0.95 0.008 85);
+  --ink-muted: oklch(0.7 0.008 75);
+  --ink-inverse: oklch(0.95 0.008 85);
 
-    --border: oklch(0.32 0.006 65);
-    --border-subtle: oklch(0.26 0.005 62);
+  --brand: oklch(0.72 0.05 195.76);
+  --brand-contrast: oklch(0.16 0.02 195.76);
+  --brand-hover: oklch(0.8 0.05 195.76);
 
-    --ring: oklch(0.95 0.008 85);
-  }
+  --border: oklch(0.32 0.006 65);
+  --border-subtle: oklch(0.26 0.005 62);
+
+  --ring: oklch(0.95 0.008 85);
 }
 
 @theme inline {
@@ -119,6 +126,7 @@
   --text-step--1: 0.75rem; /* 12px */
   --text-step-0: 0.875rem; /* 14px — nav, product meta, body UI */
   --text-step-1: 1rem; /* 16px — running body copy */
+  --text-lede: 1.125rem; /* 18px — standfirst under a page title */
   --text-step-2: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
   --text-step-3: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
   --text-step-4: clamp(1.75rem, 1.25rem + 2.5vw, 3rem); /* 48px section heads */

@@ -53,8 +53,25 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // Light is the default and matches the prerendered HTML; the script below
+      // upgrades to dark before paint when the reader has chosen it.
+      data-theme="light"
       className={`${instrumentSerif.variable} ${inter.variable} antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/*
+          Runs before the body paints, so a reader who chose dark never sees a
+          flash of the light theme. It is deliberately tiny and dependency-free
+          because it blocks rendering. Wrapped in try/catch: reading
+          localStorage throws outright in some privacy modes.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('tgc-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="flex min-h-dvh flex-col bg-surface text-ink">
         <SiteHeader />
         {/*

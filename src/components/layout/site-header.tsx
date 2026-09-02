@@ -2,15 +2,8 @@ import Link from "next/link";
 
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
-import { TextLink } from "@/components/ui/link";
-
-const NAV_LINKS = [
-  { href: "/shop", label: "Shop all" },
-  { href: "/week-picks", label: "Week's picks" },
-  { href: "/journal", label: "Journal" },
-  { href: "/brands/armedangels", label: "Armedangels" },
-  { href: "/about", label: "About" },
-];
+import { NavLinks } from "@/components/layout/nav-links";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 export function SiteHeader() {
   return (
@@ -28,29 +21,18 @@ export function SiteHeader() {
           </Eyebrow>
         </Link>
 
-        {/*
-          The link set is short enough to stay visible at every width; it
-          scrolls horizontally on narrow screens rather than hiding behind a
-          menu button, which would need client-side JavaScript on an otherwise
-          fully static page.
-        */}
-        {/*
-          `min-w-0` is load-bearing: a flex child defaults to `min-width: auto`,
-          so without it the nav refuses to shrink below its content width, the
-          inner `overflow-x-auto` never engages, and the whole page scrolls
-          sideways on a narrow screen.
-        */}
-        <nav aria-label="Primary" className="min-w-0">
-          <ul className="-mx-1 flex items-center gap-x-5 overflow-x-auto px-1 sm:gap-x-7">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href} className="shrink-0">
-                <TextLink href={link.href} tone="default" underline="hover">
-                  {link.label}
-                </TextLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="flex min-w-0 items-center gap-4 sm:gap-6">
+          {/*
+            `min-w-0` is load-bearing: a flex child defaults to `min-width: auto`,
+            so without it the nav refuses to shrink below its content width, the
+            inner `overflow-x-auto` never engages, and the whole page scrolls
+            sideways on a narrow screen.
+          */}
+          <nav aria-label="Primary" className="min-w-0">
+            <NavLinks />
+          </nav>
+          <ThemeToggle />
+        </div>
       </Container>
     </header>
   );

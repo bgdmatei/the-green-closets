@@ -10,6 +10,9 @@
   `src/features/shop/data/shop.data.ts`.
 - Routes: `/`, `/shop`, `/week-picks`, `/brands/[slug]`, `/journal`,
   `/articles/[slug]`, `/category/[slug]`, `/about`.
+- Two client components only — `ThemeToggle` and `NavLinks` (the latter purely
+  to mark the current section). Everything else is a Server Component, and all
+  routes still prerender static.
 
 ## Shop model
 
@@ -33,11 +36,18 @@ no `revalidate`, no `cacheComponents`, and no request-time API anywhere, so a
 
 - Tokens: `src/app/tokens.css` — semantic colour roles (`surface`, `ink`,
   `brand`, `border`), a type scale (`--text-step-*`), radii and shadows. Light
-  and dark palettes are both defined; only `:root` values are restated under
-  `prefers-color-scheme: dark`.
+  lives on `:root`; dark restates only the colour values under
+  `:root[data-theme="dark"]`.
 - The palette is a warm near-neutral cream, so photography supplies all the
   colour. **Radii are zero by design** — the layout reads as printed matter.
   They remain tokens so softening them later is one edit.
+- **Light is the default theme for everyone**, whatever their OS is set to.
+  Dark is opt-in through `data-theme="dark"` on `<html>`, never
+  `prefers-color-scheme`. The toggle lives in the header, persists to
+  `localStorage` under `tgc-theme`, and an inline script in the root layout
+  applies the stored value before first paint so dark readers see no flash.
+  `ThemeToggle` subscribes to the `<html>` attribute via `useSyncExternalStore`
+  rather than mirroring it in React state, which also syncs across tabs.
 - `--on-light-muted` is deliberately *not* restated for dark mode: it colours
   text on a light chip over a photograph, and a photograph does not change with
   the viewer's colour scheme.
@@ -47,7 +57,9 @@ no `revalidate`, no `cacheComponents`, and no request-time API anywhere, so a
   `class-variance-authority`; `as` polymorphism goes through `PolymorphicProps`.
 - `Heading` takes an `accent` prop rendered in the display italic — "Read the
   *journal*". That mixed roman/italic line is the signature of the design, so
-  it is a first-class prop rather than markup each caller reproduces.
+  it is a first-class prop rather than markup each caller reproduces. `accent`
+  only appends; for an italic that falls mid-sentence ("Notes from a *greener*
+  closet.") compose with the exported `<Accent>` instead.
 - Fonts: Instrument Serif (`--font-display`, roman **and italic**) for display
   type, Inter (`--font-body`) for UI and copy, self-hosted via `next/font`.
 - Layout rule: the root layout sets **no** width. Sections opt into
@@ -64,7 +76,8 @@ no `revalidate`, no `cacheComponents`, and no request-time API anywhere, so a
 them as one group and keeps only the last, silently dropping the colour. That
 rendered overlay headings in the near-black body ink, invisible against the
 photograph. `src/lib/utils.test.ts` guards this; **add any new custom `text-*`
-scale value to that config.**
+scale value to that config** — `text-lede` is in there for exactly this
+reason.
 
 ## Security
 

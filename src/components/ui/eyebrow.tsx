@@ -19,7 +19,7 @@ const eyebrowVariants = cva(
   },
 );
 
-type EyebrowElement = "p" | "span" | "div" | "h2" | "h3";
+type EyebrowElement = "p" | "span" | "div" | "time" | "h2" | "h3";
 
 type EyebrowProps<T extends EyebrowElement> = PolymorphicProps<
   T,

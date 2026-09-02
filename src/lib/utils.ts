@@ -22,6 +22,7 @@ const twMerge = extendTailwindMerge({
             "step-3",
             "step-4",
             "step-5",
+            "lede",
           ],
         },
       ],
