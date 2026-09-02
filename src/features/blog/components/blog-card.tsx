@@ -1,11 +1,9 @@
 import Link from "next/link";
 
 import type { BlogPost } from "@/features/blog/types/blog.types";
-import type { Locale } from "@/lib/i18n";
 
 interface BlogCardProps {
   post: BlogPost;
-  locale: Locale;
 }
 
 export const BlogCard = ({ post }: BlogCardProps) => {

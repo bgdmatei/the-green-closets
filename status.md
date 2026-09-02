@@ -1,8 +1,8 @@
 # Bogdan Project Blog Status
 
 ## Scope
-- Frontend-only multilingual blog built with Next.js App Router.
-- Locales: `en`, `es`.
+- Frontend-only blog built with Next.js App Router.
+- Single locale: English only.
 - Content source: local typed data module (`src/features/blog/data/posts.ts`).
 
 ## Security Defaults
@@ -17,7 +17,7 @@
 
 ## SEO
 - Metadata helper in `src/lib/metadata.ts`.
-- Per-page metadata in locale, detail, and category pages.
+- Per-page metadata on the homepage, detail, and category pages.
 - `robots.ts` and `sitemap.ts` implemented.
 
 ## Environment
