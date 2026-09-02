@@ -43,3 +43,9 @@ next-env.d.ts
 # playwright
 /test-results/
 /playwright-report/
+
+# claude code
+# Skills are committed on purpose — they are project tooling. Local settings are
+# not: they hold each person's own permission grants. This rule lives here as
+# well as in any personal global ignore, so a fresh clone is protected too.
+/.claude/settings.local.json
