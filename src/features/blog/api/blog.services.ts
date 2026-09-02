@@ -7,19 +7,20 @@ import type { BlogCategory, BlogPost } from "@/features/blog/types/blog.types";
  * Returns all posts sorted by newest first.
  */
 export const getPosts = cache(async (): Promise<BlogPost[]> => {
-  const filtered = posts.toSorted(
+  return posts.toSorted(
     (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
   );
-  return filtered;
 });
 
 /**
  * Returns one post by slug.
  */
-export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
-  const post = posts.find((item) => item.slug === slug);
-  return post ?? null;
-});
+export const getPostBySlug = cache(
+  async (slug: string): Promise<BlogPost | null> => {
+    const post = posts.find((item) => item.slug === slug);
+    return post ?? null;
+  },
+);
 
 /**
  * Returns all categories that have posts.
@@ -39,6 +40,16 @@ export const getCategories = cache(async (): Promise<BlogCategory[]> => {
 
   return [...map.values()];
 });
+
+/**
+ * Returns one category by slug.
+ */
+export const getCategoryBySlug = cache(
+  async (slug: string): Promise<BlogCategory | null> => {
+    const categories = await getCategories();
+    return categories.find((category) => category.slug === slug) ?? null;
+  },
+);
 
 /**
  * Returns posts belonging to a category.

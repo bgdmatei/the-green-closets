@@ -9,9 +9,12 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "pnpm dev",
+    // A production server, not `next dev`: the CSP deliberately differs between
+    // the two, so header assertions against dev would test the wrong policy.
+    command: "pnpm build && pnpm start",
     port: 3000,
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
+    timeout: 180000,
   },
   projects: [
     {

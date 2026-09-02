@@ -1,24 +1,43 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Source_Serif_4 } from "next/font/google";
-import Link from "next/link";
+
 import "./globals.css";
-import { Text } from "@/features/blog/components/shadcn/Text";
+import { Container } from "@/components/ui/container";
+import { Heading } from "@/components/ui/heading";
+import { TextLink } from "@/components/ui/link";
+import { Text } from "@/components/ui/text";
+import { getEnv } from "@/lib/env";
 
 const playfair = Playfair_Display({
-  variable: "--font-sans",
+  variable: "--font-playfair",
   subsets: ["latin"],
-});
-const source = Source_Serif_4({
-  variable: "--font-sans-serif",
-  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
+  subsets: ["latin"],
+  weight: ["300", "400", "600"],
+  display: "swap",
+});
+
+const env = getEnv();
+
 export const metadata: Metadata = {
+  // Lets every route express canonical and Open Graph URLs as relative paths.
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: {
     default: "THE GREEN CLOSETS",
     template: "%s | THE GREEN CLOSETS",
   },
-  description: "SUSTAINABLE STYLE MADE EASY",
+  description: "Sustainable style made easy.",
+  applicationName: "THE GREEN CLOSETS",
+  openGraph: {
+    siteName: "THE GREEN CLOSETS",
+    locale: "en_GB",
+    type: "website",
+  },
 };
 
 export const viewport = {
@@ -34,28 +53,39 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${source.variable} h-full w-full antialiased`}
+      className={`${playfair.variable} ${sourceSerif.variable} antialiased`}
     >
-      <body className="min-h-full">
-        <div className="mx-auto min-h-screen w-full lg:max-w-6xl py-10 bg-background overflow-clip md:overflow-visible">
-          <header className="mb-8 flex flex-col items-center justify-center pb-4 gap-2">
-            <Link
-              className="text-secondary text-4xl font-normal uppercase"
-              href="/"
+      <body className="flex min-h-dvh flex-col bg-surface text-ink">
+        <Container as="header" className="py-10 text-center">
+          <TextLink href="/" tone="muted" underline="never" className="block">
+            <Heading
+              as="p"
+              size="lg"
+              tone="brand"
+              align="center"
+              uppercase
+              className="font-normal"
             >
               THE GREEN CLOSETS
-            </Link>
-            <Text
-              as="p"
-              size="sm"
-              weight="light"
-              className="text-secondary uppercase"
-            >
-              Sustainable style made easy
-            </Text>
-          </header>
-          <main>{children}</main>
-        </div>
+            </Heading>
+          </TextLink>
+          <Text
+            size="sm"
+            weight="light"
+            tone="muted"
+            align="center"
+            uppercase
+            className="mt-2"
+          >
+            Sustainable style made easy
+          </Text>
+        </Container>
+
+        {/*
+          No width constraint here on purpose — each page section opts into a
+          `Container`, so full-bleed bands can simply be full width.
+        */}
+        <main className="flex-1 pb-16">{children}</main>
       </body>
     </html>
   );

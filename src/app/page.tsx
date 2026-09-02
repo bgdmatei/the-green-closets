@@ -1,106 +1,134 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ChevronRightIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
 
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
+import { Divider } from "@/components/ui/divider";
+import { FullBleed } from "@/components/ui/full-bleed";
+import { Heading } from "@/components/ui/heading";
+import { TextLink } from "@/components/ui/link";
+import { Text } from "@/components/ui/text";
 import { getPosts } from "@/features/blog/api/blog.services";
-import { getEnv } from "@/lib/env";
+import { PostCard } from "@/features/blog/components/post-card";
+import { formatPublishedDate } from "@/features/blog/lib/format-date";
+import { ArticleTypes } from "@/features/blog/types/blog.types";
 import { buildPageMetadata } from "@/lib/metadata";
-import { Text } from "@/features/blog/components/shadcn/Text";
-import { ArticleTypes } from "@/features/blog/data/posts";
-import { Divider } from "@/features/blog/components/shadcn/Divider";
-import { LatestCard } from "@/features/blog/components/latest-card";
 
-export const revalidate = 300;
-
-/**
- * Generates metadata for the homepage.
- */
-export const generateMetadata = async (): Promise<Metadata> => {
-  const env = getEnv();
-  return buildPageMetadata(env.NEXT_PUBLIC_SITE_URL, {
-    title: "Frontend Blog",
-    description: "A small frontend-only blog built with Next.js.",
+export const generateMetadata = async (): Promise<Metadata> =>
+  buildPageMetadata({
+    title: "Sustainable style made easy",
+    description:
+      "Guides and essays on building a wardrobe that lasts — fibre choice, transparency, and buying less but better.",
     path: "/",
   });
-};
 
 export default async function Homepage() {
   const posts = await getPosts();
 
-  const topPick = posts.find((post) => post.type === ArticleTypes.TopPage);
+  const topPick = posts.find((post) => post.type === ArticleTypes.TopPick);
+  // The featured post already has the hero; don't repeat it in the grid below.
+  const latest = posts.filter((post) => post.slug !== topPick?.slug);
 
   return (
-    <section className="space-y-10">
-      <div className="relative p-4">
-        <div>
-          <Image
-            className="rounded-lg"
-            src="/images/homepage/flowers.jpg"
-            alt="Flower basket"
-            width={565}
-            height={338}
-          />
-        </div>
-        <div className="bg-foreground md:absolute md:w-[50%] top-[25%] left-[30%] rounded-lg px-6 py-4 mt-4">
-          <Text
-            as="h4"
-            size="5xl"
-            weight="normal"
-            leading="tight"
-            className="mb-6"
-          >
-            {topPick?.title}
-          </Text>
-          <Text as="h4" size="sm" weight="normal">
-            {topPick?.excerpt}
-          </Text>
-          <div className="flex justify-between mt-4">
-            <Text as="span" size="xxs" weight="normal">
-              {topPick?.publishedAt}
-            </Text>
-            <Link
-              className="flex text-primary text-xs underline"
-              href={`/articles/${topPick?.slug}`}
+    <div className="space-y-16">
+      {topPick ? (
+        <Container as="section" aria-labelledby="top-pick-heading">
+          <div className="md:relative">
+            <Image
+              className="w-full rounded-xl object-cover"
+              src="/images/homepage/flowers.jpg"
+              alt=""
+              width={685}
+              height={407}
+              priority
+              sizes="(min-width: 1152px) 1104px, 100vw"
+            />
+
+            <Card
+              surface="raised"
+              padding="lg"
+              className="-mt-8 mx-4 gap-4 md:absolute md:inset-y-8 md:right-8 md:mx-0 md:mt-0 md:w-[46%] md:justify-center"
             >
-              Read More{" "}
-              <Text as="span" size="xxs">
-                <ChevronRightIcon className="mt-[2px]" width={16} height={16} />
+              <Badge variant="inverse" className="self-start">
+                {topPick.categoryName}
+              </Badge>
+              <Heading
+                as="h1"
+                id="top-pick-heading"
+                size="lg"
+                tone="inverse"
+                className="text-pretty"
+              >
+                {topPick.title}
+              </Heading>
+              <Text size="sm" weight="light" tone="inverse" leading="relaxed">
+                {topPick.excerpt}
               </Text>
-            </Link>
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <Text
+                  as="time"
+                  size="xs"
+                  tone="inverse"
+                  dateTime={topPick.publishedAt}
+                >
+                  {formatPublishedDate(topPick.publishedAt)}
+                </Text>
+                <TextLink
+                  href={`/articles/${topPick.slug}`}
+                  size="xs"
+                  tone="inverse"
+                  underline="always"
+                >
+                  Read more
+                  <ChevronRightIcon aria-hidden width={14} height={14} />
+                  <span className="sr-only">: {topPick.title}</span>
+                </TextLink>
+              </div>
+            </Card>
           </div>
-        </div>
-      </div>
+        </Container>
+      ) : null}
 
-      <div className="md:-mx-[calc((100vw-72rem)/2)] w-screen space-y-4">
-        <Divider orientation="horizontal" className="w-[98%] mr-4 ml-4" />
-        <Text
-          as="h1"
-          size="3xl"
-          variant="secondary"
-          className="text-center uppercase font-title"
-        >
-          Latest Articles
-        </Text>
-        <div className="grid md:grid-cols-3 md:gap-6 gap-4 px-4">
-          {posts.map((post) => (
-            <LatestCard key={post.slug} post={post} />
-          ))}
-        </div>
-      </div>
+      <FullBleed aria-labelledby="latest-heading">
+        <Container className="space-y-8">
+          <Divider />
+          <Heading
+            as="h2"
+            id="latest-heading"
+            size="md"
+            tone="brand"
+            uppercase
+            align="center"
+          >
+            Latest articles
+          </Heading>
+          <ul className="grid gap-6 md:grid-cols-3">
+            {latest.map((post) => (
+              <li key={post.slug} className="contents">
+                <PostCard post={post} variant="feature" />
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </FullBleed>
 
-      <div className="md:-mx-[calc((100vw-72rem)/2)] w-screen space-y-4">
-        <Divider orientation="horizontal" className="w-[98%] mr-4 ml-4" />
-        <Text
-          as="h1"
-          size="3xl"
-          variant="secondary"
-          className="text-center uppercase font-title"
-        >
-          Let&apos;s stay connected
-        </Text>
-        <div className="bg-foreground"></div>
-      </div>
-    </section>
+      <FullBleed aria-labelledby="connected-heading">
+        <Container className="space-y-8">
+          <Divider />
+          <Heading
+            as="h2"
+            id="connected-heading"
+            size="md"
+            tone="brand"
+            uppercase
+            align="center"
+          >
+            Let&apos;s stay connected
+          </Heading>
+        </Container>
+      </FullBleed>
+    </div>
   );
 }

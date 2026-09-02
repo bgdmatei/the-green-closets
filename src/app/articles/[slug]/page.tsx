@@ -1,29 +1,31 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Badge } from "@/components/ui/badge";
+import { Container } from "@/components/ui/container";
+import { Divider } from "@/components/ui/divider";
+import { Heading } from "@/components/ui/heading";
+import { TextLink } from "@/components/ui/link";
+import { Text } from "@/components/ui/text";
 import { getPostBySlug, getPosts } from "@/features/blog/api/blog.services";
 import { PostContent } from "@/features/blog/components/post-content";
-import { getEnv } from "@/lib/env";
+import { formatPublishedDate } from "@/features/blog/lib/format-date";
 import { buildPageMetadata } from "@/lib/metadata";
 
-export const revalidate = 300;
+// The content set is closed, so anything not prerendered is a genuine 404.
+export const dynamicParams = false;
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/**
- * Generates static params for all posts.
- */
-export const generateStaticParams = async (): Promise<Array<{ slug: string }>> => {
+export const generateStaticParams = async (): Promise<
+  Array<{ slug: string }>
+> => {
   const posts = await getPosts();
   return posts.map((post) => ({ slug: post.slug }));
 };
 
-/**
- * Generates metadata for a blog detail page.
- */
 export const generateMetadata = async ({
   params,
 }: BlogPostPageProps): Promise<Metadata> => {
@@ -31,16 +33,14 @@ export const generateMetadata = async ({
   const post = await getPostBySlug(slug);
 
   if (!post) {
-    return {
-      title: "Post not found",
-    };
+    return { title: "Post not found" };
   }
 
-  const env = getEnv();
-  return buildPageMetadata(env.NEXT_PUBLIC_SITE_URL, {
+  return buildPageMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/articles/${post.slug}`,
+    publishedTime: post.publishedAt,
   });
 };
 
@@ -53,18 +53,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="space-y-6">
-      <Link className="text-sm text-blue-700 hover:underline" href="/">
-        Back to articles
-      </Link>
-      <div className="space-y-2">
-        <p className="text-xs uppercase tracking-wide text-zinc-500">
-          {post.categoryName}
-        </p>
-        <h1 className="text-3xl font-bold">{post.title}</h1>
-        <p className="text-sm text-zinc-500">{post.publishedAt}</p>
-      </div>
+    <Container as="article" width="prose" className="space-y-8">
+      <TextLink href="/" tone="muted" size="xs">
+        &larr; All articles
+      </TextLink>
+
+      <header className="space-y-4">
+        <TextLink href={`/category/${post.categorySlug}`} underline="never">
+          <Badge>{post.categoryName}</Badge>
+        </TextLink>
+        <Heading as="h1" size="lg" className="text-pretty">
+          {post.title}
+        </Heading>
+        <Text as="time" size="sm" tone="muted" dateTime={post.publishedAt}>
+          {formatPublishedDate(post.publishedAt)}
+        </Text>
+      </header>
+
+      <Divider />
+
       <PostContent contentHtml={post.contentHtml} />
-    </article>
+    </Container>
   );
 }

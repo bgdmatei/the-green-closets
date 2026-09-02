@@ -1,13 +1,21 @@
-import Link from "next/link";
+import { Container } from "@/components/ui/container";
+import { Heading } from "@/components/ui/heading";
+import { ButtonLink } from "@/components/ui/link";
+import { Text } from "@/components/ui/text";
 
 export default function NotFound() {
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-3xl font-bold">Page not found</h1>
-      <p className="text-zinc-600">The page you requested does not exist or is unavailable.</p>
-      <Link className="text-blue-700 hover:underline" href="/">
-        Go to homepage
-      </Link>
-    </div>
+    <Container
+      width="prose"
+      className="flex flex-col items-center gap-6 py-24 text-center"
+    >
+      <Heading as="h1" size="lg">
+        Page not found
+      </Heading>
+      <Text tone="muted" align="center">
+        The page you requested does not exist or is no longer available.
+      </Text>
+      <ButtonLink href="/">Back to articles</ButtonLink>
+    </Container>
   );
 }

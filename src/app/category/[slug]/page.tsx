@@ -1,53 +1,84 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getPostsByCategory } from "@/features/blog/api/blog.services";
-import { BlogCard } from "@/features/blog/components/blog-card";
-import { getEnv } from "@/lib/env";
+import { Container } from "@/components/ui/container";
+import { Divider } from "@/components/ui/divider";
+import { Heading } from "@/components/ui/heading";
+import { TextLink } from "@/components/ui/link";
+import { Text } from "@/components/ui/text";
+import {
+  getCategories,
+  getCategoryBySlug,
+  getPostsByCategory,
+} from "@/features/blog/api/blog.services";
+import { PostCard } from "@/features/blog/components/post-card";
 import { buildPageMetadata } from "@/lib/metadata";
 
-export const revalidate = 300;
+export const dynamicParams = false;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/**
- * Generates metadata for a category page.
- */
+export const generateStaticParams = async (): Promise<
+  Array<{ slug: string }>
+> => {
+  const categories = await getCategories();
+  return categories.map((category) => ({ slug: category.slug }));
+};
+
 export const generateMetadata = async ({
   params,
 }: CategoryPageProps): Promise<Metadata> => {
   const { slug } = await params;
+  const category = await getCategoryBySlug(slug);
 
-  const env = getEnv();
-  return buildPageMetadata(env.NEXT_PUBLIC_SITE_URL, {
-    title: `Category: ${slug}`,
-    description: `Articles in category ${slug}.`,
-    path: `/category/${slug}`,
+  if (!category) {
+    return { title: "Category not found" };
+  }
+
+  return buildPageMetadata({
+    title: category.name,
+    description: `Articles filed under ${category.name}.`,
+    path: `/category/${category.slug}`,
   });
 };
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const posts = await getPostsByCategory(slug);
+  const [category, posts] = await Promise.all([
+    getCategoryBySlug(slug),
+    getPostsByCategory(slug),
+  ]);
 
-  if (posts.length === 0) {
+  if (!category || posts.length === 0) {
     notFound();
   }
 
   return (
-    <section className="space-y-6">
-      <Link className="text-sm text-blue-700 hover:underline" href="/">
-        Back to all categories
-      </Link>
-      <h1 className="text-3xl font-bold">Category: {posts[0].categoryName}</h1>
-      <div className="grid gap-4">
+    <Container as="section" className="space-y-8">
+      <TextLink href="/" tone="muted" size="xs">
+        &larr; All articles
+      </TextLink>
+
+      <header className="space-y-2">
+        <Heading as="h1" size="lg">
+          {category.name}
+        </Heading>
+        <Text size="sm" tone="muted">
+          {posts.length} {posts.length === 1 ? "article" : "articles"}
+        </Text>
+      </header>
+
+      <Divider />
+
+      <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <BlogCard key={post.slug} post={post} />
+          <li key={post.slug} className="contents">
+            <PostCard post={post} />
+          </li>
         ))}
-      </div>
-    </section>
+      </ul>
+    </Container>
   );
 }

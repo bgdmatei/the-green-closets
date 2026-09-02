@@ -9,7 +9,7 @@ export const PostContent = ({ contentHtml }: PostContentProps) => {
 
   return (
     <div
-      className="prose prose-zinc max-w-none prose-a:text-blue-700"
+      className="prose prose-article max-w-none font-body"
       dangerouslySetInnerHTML={{ __html: safeHtml }}
     />
   );
