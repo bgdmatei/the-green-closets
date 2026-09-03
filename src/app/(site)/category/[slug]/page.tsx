@@ -13,7 +13,13 @@ import {
 import { PostListItem } from "@/features/blog/components/post-list-item";
 import { buildPageMetadata } from "@/lib/metadata";
 
-export const dynamicParams = false;
+/**
+ * Posts are published from the backoffice, so the set is open: a slug that did
+ * not exist at build time must still render. Next renders it on demand and
+ * caches the result. `generateStaticParams` still prerenders everything that
+ * exists at build time, so this only affects posts added afterwards.
+ */
+export const dynamicParams = true;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;

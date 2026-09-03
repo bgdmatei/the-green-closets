@@ -5,8 +5,9 @@
 - Frontend-only curated shop plus journal, on the Next.js App Router (16.x,
   React 19).
 - Single locale: English. There is no i18n routing, no `[lang]` segment and no proxy.
-- Content sources, both local typed data modules standing in for a future
-  backend: `src/features/blog/data/posts.ts` and
+- Posts live in **Postgres (Neon)**. `src/features/blog/data/posts.ts` is now
+  only the seed fixture for `pnpm db:seed`; no page imports it.
+- Shop data is still a local typed module standing in for a future feed:
   `src/features/shop/data/shop.data.ts`.
 - Routes: `/`, `/shop`, `/week-picks`, `/brands/[slug]`, `/journal`,
   `/articles/[slug]`, `/category/[slug]`, `/about`.
@@ -25,12 +26,19 @@ is local; every view goes through `shop.services`.
 ## Rendering
 
 Every route is prerendered at build time — `○ (Static)` or `● (SSG)`. There is
-no `revalidate`, no `cacheComponents`, and no request-time API anywhere, so a
-`ƒ (Dynamic)` marker in `next build` output is a regression.
+no `revalidate`, no `cacheComponents`, and no request-time API on the public
+site, so a `ƒ (Dynamic)` marker for a `(site)` route in `next build` output is a
+regression.
 
-- `generateStaticParams` on both dynamic routes.
-- `dynamicParams = false`: the content set is closed, so an unlisted slug is a
-  genuine 404 rather than a request-time render.
+- `generateStaticParams` prerenders every post and category that exists at build
+  time, querying Postgres to do so.
+- `dynamicParams = true`: posts are published from the backoffice, so the set is
+  open. A slug that did not exist at build time renders on demand and is then
+  cached, instead of 404ing until the next full build.
+
+**The build now requires `DATABASE_URL`.** Prerendering reads the database, so a
+build without it fails at page-data collection. Netlify needs the variable set
+for builds, not just at runtime.
 
 ## Design system
 
@@ -105,8 +113,15 @@ reason.
 
 ## Environment
 
-- Required: `NEXT_PUBLIC_SITE_URL` (validated by `src/lib/env.ts`, fails fast).
-- Local: set in `.env.local`; template in `.env.example`.
+- Public: `NEXT_PUBLIC_SITE_URL` (validated by `src/lib/env.ts`).
+- Server-only: `DATABASE_URL` (validated by `src/lib/env.server.ts`, which
+  imports `server-only` so it cannot be pulled into a client bundle). Never
+  prefix a secret with `NEXT_PUBLIC_`.
+- Local: set in `.env.local`; template in `.env.example`. `neon link` writes the
+  Neon variables there.
+- Database commands (`db:migrate`, `db:seed`) are plain Node processes and load
+  `.env.local` themselves via `process.loadEnvFile`; Next does it automatically
+  for the app.
 
 ## Checks
 

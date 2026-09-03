@@ -11,8 +11,13 @@ import { PostContent } from "@/features/blog/components/post-content";
 import { formatPublishedDate } from "@/features/blog/lib/format-date";
 import { buildPageMetadata } from "@/lib/metadata";
 
-// The content set is closed, so anything not prerendered is a genuine 404.
-export const dynamicParams = false;
+/**
+ * Posts are published from the backoffice, so the set is open: a slug that did
+ * not exist at build time must still render. Next renders it on demand and
+ * caches the result. `generateStaticParams` still prerenders everything that
+ * exists at build time, so this only affects posts added afterwards.
+ */
+export const dynamicParams = true;
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
