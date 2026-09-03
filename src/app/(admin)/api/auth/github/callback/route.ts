@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { isSafeReturnPath } from "@/server/auth/dal";
-import { callbackUrl, secureCookie } from "@/server/auth/cookies";
+import { callbackUrl, cookieOptions, requestOrigin } from "@/server/auth/cookies";
 import {
   exchangeCodeForToken,
   fetchGitHubUser,
@@ -20,7 +20,7 @@ import { getDb } from "@/server/db/client";
 
 /** One generic failure for every rejection, so probing reveals nothing. */
 const deny = (request: NextRequest) =>
-  NextResponse.redirect(new URL("/admin/login?error=1", request.nextUrl.origin));
+  NextResponse.redirect(new URL("/admin/login?error=1", requestOrigin(request)));
 
 export const GET = async (request: NextRequest) => {
   const jar = await cookies();
@@ -54,13 +54,13 @@ export const GET = async (request: NextRequest) => {
     const { token } = await createSession(getDb(), user);
 
     jar.set(SESSION_COOKIE, token, {
-      ...secureCookie,
+      ...cookieOptions(request),
       maxAge: SESSION_TTL_SECONDS,
     });
 
     const destination =
       returnTo && isSafeReturnPath(returnTo) ? returnTo : "/admin";
-    return NextResponse.redirect(new URL(destination, request.nextUrl.origin));
+    return NextResponse.redirect(new URL(destination, requestOrigin(request)));
   } catch (error) {
     // Log server-side; tell the browser nothing beyond "that did not work".
     console.error("GitHub OAuth callback failed:", error);

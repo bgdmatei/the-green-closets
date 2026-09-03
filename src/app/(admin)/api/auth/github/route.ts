@@ -8,7 +8,7 @@ import {
   OAUTH_RETURN_COOKIE,
   OAUTH_STATE_COOKIE,
 } from "@/server/auth/github";
-import { callbackUrl, secureCookie } from "@/server/auth/cookies";
+import { callbackUrl, cookieOptions } from "@/server/auth/cookies";
 
 /**
  * Starts the OAuth flow.
@@ -23,7 +23,7 @@ export const GET = async (request: NextRequest) => {
   const jar = await cookies();
 
   jar.set(OAUTH_STATE_COOKIE, state, {
-    ...secureCookie,
+    ...cookieOptions(request),
     // Only needs to survive the round trip to GitHub and back.
     maxAge: 60 * 10,
   });
@@ -32,7 +32,7 @@ export const GET = async (request: NextRequest) => {
   // the login into an open redirect.
   const requested = request.nextUrl.searchParams.get("next");
   if (requested && isSafeReturnPath(requested)) {
-    jar.set(OAUTH_RETURN_COOKIE, requested, { ...secureCookie, maxAge: 60 * 10 });
+    jar.set(OAUTH_RETURN_COOKIE, requested, { ...cookieOptions(request), maxAge: 60 * 10 });
   }
 
   return NextResponse.redirect(

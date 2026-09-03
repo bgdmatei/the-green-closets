@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { requestOrigin } from "@/server/auth/cookies";
 import { deleteSession, SESSION_COOKIE } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
 
@@ -21,7 +22,7 @@ export const POST = async (request: NextRequest) => {
   }
 
   jar.delete(SESSION_COOKIE);
-  return NextResponse.redirect(new URL("/admin/login", request.nextUrl.origin), {
+  return NextResponse.redirect(new URL("/admin/login", requestOrigin(request)), {
     // 303 so the browser follows with GET rather than repeating the POST.
     status: 303,
   });
