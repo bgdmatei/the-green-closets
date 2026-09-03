@@ -89,3 +89,36 @@ export type PostRow = typeof posts.$inferSelect;
 export type NewPostRow = typeof posts.$inferInsert;
 export type CategoryRow = typeof categories.$inferSelect;
 export type NewCategoryRow = typeof categories.$inferInsert;
+
+/**
+ * Admin sessions.
+ *
+ * Opaque server-side sessions rather than JWTs, so signing out or a suspected
+ * compromise revokes access immediately — a JWT stays valid until it expires,
+ * which is exactly the wrong property when you want it gone now.
+ *
+ * `tokenHash` is a SHA-256 of the token, never the token itself. The raw value
+ * exists only in the user's cookie, so a database leak does not hand over live
+ * sessions, the same reason a password is never stored in the clear.
+ */
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tokenHash: text("token_hash").notNull(),
+    /** GitHub's numeric user id — stable across a username change. */
+    githubUserId: text("github_user_id").notNull(),
+    githubLogin: text("github_login").notNull(),
+    /** Absolute expiry. There is no sliding renewal; a session has a hard end. */
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("sessions_token_hash_idx").on(table.tokenHash),
+    index("sessions_expires_at_idx").on(table.expiresAt),
+  ],
+);
+
+export type SessionRow = typeof sessions.$inferSelect;

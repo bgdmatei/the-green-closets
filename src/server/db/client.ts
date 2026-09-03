@@ -3,7 +3,7 @@ import "server-only";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 
-import { getServerEnv } from "@/lib/env.server";
+import { getDatabaseEnv } from "@/lib/env.server";
 import * as schema from "./schema";
 
 /**
@@ -21,7 +21,7 @@ import * as schema from "./schema";
 let cached: ReturnType<typeof createClient> | null = null;
 
 const createClient = () => {
-  const sql = neon(getServerEnv().DATABASE_URL);
+  const sql = neon(getDatabaseEnv().DATABASE_URL);
   return drizzle(sql, { schema });
 };
 
