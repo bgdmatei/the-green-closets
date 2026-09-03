@@ -3,3 +3,5 @@ allowBuilds:
   sharp: true
   # Native resolver used by eslint-plugin-import-x.
   unrs-resolver: true
+  # drizzle-kit's bundler; needed for `drizzle-kit generate` to run.
+  esbuild: true
