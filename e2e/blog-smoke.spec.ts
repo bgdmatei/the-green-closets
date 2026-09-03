@@ -183,6 +183,56 @@ test("the journal marks the current section in the nav", async ({ page }) => {
   );
 });
 
+test.describe("backoffice access", () => {
+  test("an unauthenticated visitor cannot reach /admin", async ({ page }) => {
+    await page.goto("/admin");
+
+    await expect(page).toHaveURL(/\/admin\/login/);
+    await expect(
+      page.getByRole("link", { name: /continue with github/i }),
+    ).toBeVisible();
+  });
+
+  test("a forged session cookie does not grant access", async ({
+    page,
+    context,
+  }) => {
+    await context.addCookies([
+      {
+        name: "tgc_admin_session",
+        value: "totally-made-up-token",
+        url: "http://127.0.0.1:3000",
+      },
+    ]);
+
+    await page.goto("/admin");
+
+    // Sessions are looked up by hash of a random 256-bit token, so a guessed
+    // value cannot match; the gate must redirect rather than error.
+    await expect(page).toHaveURL(/\/admin\/login/);
+  });
+
+  test("the backoffice is not indexable and not in the sitemap", async ({
+    page,
+    request,
+  }) => {
+    await page.goto("/admin/login");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      /noindex/,
+    );
+
+    const sitemap = await (await request.get("/sitemap.xml")).text();
+    expect(sitemap).not.toContain("/admin");
+  });
+
+  test("signing out is not possible with a GET", async ({ request }) => {
+    // A GET logout could be triggered by any page with an image tag.
+    const response = await request.get("/api/auth/logout");
+    expect(response.status()).toBe(405);
+  });
+});
+
 test("an unknown article returns a 404", async ({ page }) => {
   const response = await page.goto("/articles/does-not-exist");
   expect(response?.status()).toBe(404);

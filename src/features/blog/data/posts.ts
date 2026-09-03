@@ -3,6 +3,14 @@ import {
   type BlogPost,
 } from "@/features/blog/types/blog.types";
 
+/**
+ * Seed fixture only.
+ *
+ * The site reads posts from Postgres; this is what `pnpm db:seed` loads into a
+ * fresh database. It is not imported by any page, and new posts are written
+ * through the backoffice rather than added here.
+ */
+
 export const posts: BlogPost[] = [
   {
     slug: "what-is-sustainable-fashion",

@@ -1,62 +1,53 @@
+import "server-only";
+
 import { cache } from "react";
 
-import { posts } from "@/features/blog/data/posts";
 import type { BlogCategory, BlogPost } from "@/features/blog/types/blog.types";
+import { getDb } from "@/server/db/client";
+import {
+  findCategoriesWithPublishedPosts,
+  findCategoryBySlug,
+  findPublishedPostBySlug,
+  findPublishedPosts,
+  findPublishedPostsByCategory,
+} from "@/server/db/posts.repository";
 
 /**
- * Returns all posts sorted by newest first.
+ * The public site's view of the blog.
+ *
+ * Every page reads through here, so this is the only place that knows posts
+ * live in Postgres. The repository beneath it filters to published posts
+ * unconditionally, which is why nothing in this module takes a "include drafts"
+ * flag — a reader-facing path must not be able to ask for one.
+ *
+ * `cache` is React's per-request memo: several components call `getPosts` while
+ * rendering one page, and this collapses those into a single query. It is not a
+ * persistent cache — pages are prerendered, and a publish invalidates them
+ * explicitly.
  */
+
 export const getPosts = cache(async (): Promise<BlogPost[]> => {
-  return posts.toSorted(
-    (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
-  );
+  return findPublishedPosts(getDb());
 });
 
-/**
- * Returns one post by slug.
- */
 export const getPostBySlug = cache(
   async (slug: string): Promise<BlogPost | null> => {
-    const post = posts.find((item) => item.slug === slug);
-    return post ?? null;
+    return findPublishedPostBySlug(getDb(), slug);
   },
 );
 
-/**
- * Returns all categories that have posts.
- */
 export const getCategories = cache(async (): Promise<BlogCategory[]> => {
-  const allPosts = await getPosts();
-  const map = new Map<string, BlogCategory>();
-
-  for (const post of allPosts) {
-    if (!map.has(post.categorySlug)) {
-      map.set(post.categorySlug, {
-        slug: post.categorySlug,
-        name: post.categoryName,
-      });
-    }
-  }
-
-  return [...map.values()];
+  return findCategoriesWithPublishedPosts(getDb());
 });
 
-/**
- * Returns one category by slug.
- */
 export const getCategoryBySlug = cache(
   async (slug: string): Promise<BlogCategory | null> => {
-    const categories = await getCategories();
-    return categories.find((category) => category.slug === slug) ?? null;
+    return findCategoryBySlug(getDb(), slug);
   },
 );
 
-/**
- * Returns posts belonging to a category.
- */
 export const getPostsByCategory = cache(
   async (categorySlug: string): Promise<BlogPost[]> => {
-    const allPosts = await getPosts();
-    return allPosts.filter((post) => post.categorySlug === categorySlug);
+    return findPublishedPostsByCategory(getDb(), categorySlug);
   },
 );
