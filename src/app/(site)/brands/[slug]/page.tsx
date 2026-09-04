@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Text } from "@/components/ui/text";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
@@ -62,9 +63,9 @@ export default async function BrandPage({ params }: BrandPageProps) {
           <Heading as="h1" size="lg">
             {brand.name}
           </Heading>
-          <p className="text-step-1 leading-relaxed text-ink-muted">
+          <Text leading="relaxed" tone="muted">
             {brand.summary}
-          </p>
+          </Text>
           <a
             href={brand.storeUrl}
             target="_blank"

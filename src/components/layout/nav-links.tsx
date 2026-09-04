@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
+import { List, ListItem } from "@/components/ui/list";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -22,14 +23,14 @@ export function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <ul className="-mx-1 flex items-center gap-x-5 overflow-x-auto px-1 sm:gap-x-7">
+    <List layout="inline" gap="none" className="-mx-1 gap-x-5 overflow-x-auto px-1 sm:gap-x-7">
       {NAV_LINKS.map((link) => {
         // A section is current for its own page and anything nested under it.
         const isCurrent =
           pathname === link.href || pathname.startsWith(`${link.href}/`);
 
         return (
-          <li key={link.href} className="shrink-0">
+          <ListItem key={link.href} className="shrink-0">
             <a
               href={link.href}
               aria-current={isCurrent ? "page" : undefined}
@@ -41,9 +42,9 @@ export function NavLinks() {
             >
               {link.label}
             </a>
-          </li>
+          </ListItem>
         );
       })}
-    </ul>
+    </List>
   );
 }

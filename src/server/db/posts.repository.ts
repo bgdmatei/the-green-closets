@@ -3,7 +3,6 @@ import "server-only";
 import { and, asc, desc, eq, type SQL } from "drizzle-orm";
 
 import type { BlogCategory, BlogPost } from "@/features/blog/types/blog.types";
-import type { ArticleType } from "@/features/blog/types/blog.types";
 import { categories, posts } from "./schema";
 import type { Database } from "./client";
 
@@ -26,7 +25,9 @@ const postSelection = {
   title: posts.title,
   excerpt: posts.excerpt,
   content: posts.content,
-  type: posts.type,
+  coverImageUrl: posts.coverImageUrl,
+  coverImageAlt: posts.coverImageAlt,
+  featured: posts.featured,
   publishedAt: posts.publishedAt,
   categorySlug: categories.slug,
   categoryName: categories.name,
@@ -37,7 +38,9 @@ type PostSelectionRow = {
   title: string;
   excerpt: string;
   content: string;
-  type: ArticleType;
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
+  featured: boolean;
   publishedAt: Date | null;
   categorySlug: string;
   categoryName: string;
@@ -51,8 +54,10 @@ const toBlogPost = (row: PostSelectionRow): BlogPost => ({
   slug: row.slug,
   title: row.title,
   excerpt: row.excerpt,
-  contentHtml: row.content,
-  type: row.type,
+  content: row.content,
+  coverImageUrl: row.coverImageUrl,
+  coverImageAlt: row.coverImageAlt,
+  featured: row.featured,
   categorySlug: row.categorySlug,
   categoryName: row.categoryName,
   publishedAt: (row.publishedAt ?? new Date(0)).toISOString().slice(0, 10),
@@ -70,6 +75,17 @@ const publishedPosts = (db: Database, extra?: SQL) =>
     .from(posts)
     .innerJoin(categories, eq(posts.categoryId, categories.id))
     .where(and(eq(posts.status, "published"), extra));
+
+/** Featured, published posts for the front page. */
+export const findFeaturedPosts = async (
+  db: Database,
+  limit = 2,
+): Promise<BlogPost[]> => {
+  const rows = await publishedPosts(db, eq(posts.featured, true))
+    .orderBy(desc(posts.publishedAt))
+    .limit(limit);
+  return rows.map(toBlogPost);
+};
 
 export const findPublishedPosts = async (
   db: Database,

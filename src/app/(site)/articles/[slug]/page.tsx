@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Text } from "@/components/ui/text";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
@@ -8,6 +9,7 @@ import { Heading } from "@/components/ui/heading";
 import { TextLink } from "@/components/ui/link";
 import { getPostBySlug, getPosts } from "@/features/blog/api/blog.services";
 import { PostContent } from "@/features/blog/components/post-content";
+import { PostCover } from "@/features/blog/components/post-cover";
 import { formatPublishedDate } from "@/features/blog/lib/format-date";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -63,7 +65,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <span aria-hidden>&larr;</span> Journal
         </TextLink>
 
-        <header className="space-y-5">
+        {post.coverImageUrl ? (
+        <PostCover
+          url={post.coverImageUrl}
+          alt={post.coverImageAlt}
+          priority
+          className="aspect-[16/9] w-full"
+          sizes="(min-width: 768px) 768px, 100vw"
+        />
+      ) : null}
+
+      <header className="space-y-5">
           <div className="flex items-baseline justify-between gap-4">
             <TextLink
               href={`/category/${post.categorySlug}`}
@@ -84,14 +96,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {post.title}
           </Heading>
 
-          <p className="font-display text-step-2 italic leading-snug text-ink-muted">
+          <Text size="lg" leading="normal" tone="muted" className="font-display italic">
             {post.excerpt}
-          </p>
+          </Text>
         </header>
 
         <Divider />
 
-        <PostContent contentHtml={post.contentHtml} />
+        <PostContent content={post.content} />
       </Container>
     </article>
   );

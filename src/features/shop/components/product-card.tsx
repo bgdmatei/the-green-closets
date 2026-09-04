@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Text } from "@/components/ui/text";
 
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { formatPrice } from "@/features/shop/lib/format-price";
@@ -56,9 +57,9 @@ export const ProductCard = ({ product, priority }: ProductCardProps) => {
         <Eyebrow as="span">{product.brand.name}</Eyebrow>
         <span className="text-step-0 tabular-nums text-ink">{price}</span>
       </div>
-      <p className="mt-1 truncate text-step-0 text-ink group-hover:underline underline-offset-4">
+      <Text size="sm" className="mt-1 truncate group-hover:underline underline-offset-4">
         {product.name}
-      </p>
+      </Text>
     </a>
   );
 };

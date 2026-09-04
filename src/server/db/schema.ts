@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   pgEnum,
   pgTable,
@@ -7,16 +8,6 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-
-/**
- * Where a post sits on the homepage. Kept as a database enum so an invalid
- * value cannot be written at all, rather than being caught in application code.
- */
-export const articleTypeEnum = pgEnum("article_type", [
-  "top-pick",
-  "weeks-pick",
-  "latest",
-]);
 
 /**
  * Drafts are invisible to the public site. Every reader-facing query filters on
@@ -59,7 +50,6 @@ export const posts = pgTable(
      * rather than a migration.
      */
     content: text("content").notNull(),
-    type: articleTypeEnum("type").notNull().default("latest"),
     status: postStatusEnum("status").notNull().default("draft"),
     /**
      * Restricting deletes: a category with posts in it cannot be removed out
@@ -68,6 +58,23 @@ export const posts = pgTable(
     categoryId: uuid("category_id")
       .notNull()
       .references(() => categories.id, { onDelete: "restrict" }),
+    /**
+     * Optional cover image, stored as an absolute URL.
+     *
+     * Deliberately not routed through `next/image`: allowing arbitrary hosts in
+     * `remotePatterns` would turn the optimizer into an open image proxy that
+     * anyone could drive with our bandwidth. Rendered unoptimized instead, so
+     * any URL works without opening that door.
+     */
+    coverImageUrl: text("cover_image_url"),
+    /** Empty string means decorative; null means no image at all. */
+    coverImageAlt: text("cover_image_alt"),
+    /**
+     * Surfaces the post on the front page. Independent of `status`: an
+     * unpublished post is never shown, featured or not, because every
+     * reader-facing query filters on published first.
+     */
+    featured: boolean("featured").notNull().default(false),
     /** Null until first published, so drafts have no date to display. */
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })

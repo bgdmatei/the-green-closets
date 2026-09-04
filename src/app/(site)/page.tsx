@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/ui/container";
+import { List, ListItem } from "@/components/ui/list";
 import { MediaTile } from "@/components/ui/media-tile";
 import { SectionHeader } from "@/components/ui/section-header";
+import { getFeaturedPosts } from "@/features/blog/api/blog.services";
+import { FeaturedPostCard } from "@/features/blog/components/featured-post-card";
 import { getNewArrivals } from "@/features/shop/api/shop.services";
 import { ProductGrid } from "@/features/shop/components/product-grid";
 import { buildPageMetadata } from "@/lib/metadata";
@@ -16,7 +19,10 @@ export const generateMetadata = async (): Promise<Metadata> =>
   });
 
 export default async function Homepage() {
-  const newArrivals = await getNewArrivals(8);
+  const [newArrivals, featured] = await Promise.all([
+    getNewArrivals(8),
+    getFeaturedPosts(2),
+  ]);
 
   return (
     <>
@@ -63,6 +69,30 @@ export default async function Homepage() {
           />
         </Container>
       </section>
+
+      {/* Only rendered when something is actually featured. */}
+      {featured.length > 0 ? (
+        <section
+          className="border-b border-border py-14 md:py-20"
+          aria-labelledby="featured-heading"
+        >
+          <Container className="space-y-10">
+            <SectionHeader
+              id="featured-heading"
+              title="From the"
+              accent="journal"
+              action={{ href: "/journal", label: "All stories" }}
+            />
+            <List layout="grid" gap="lg" columns={2}>
+              {featured.map((post, index) => (
+                <ListItem key={post.slug}>
+                  <FeaturedPostCard post={post} priority={index === 0} />
+                </ListItem>
+              ))}
+            </List>
+          </Container>
+        </section>
+      ) : null}
 
       <section className="py-14 md:py-20" aria-labelledby="new-in-heading">
         <Container className="space-y-10">

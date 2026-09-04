@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { List, ListItem } from "@/components/ui/list";
+import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { TextLink } from "@/components/ui/link";
 import { getBrands } from "@/features/shop/api/shop.services";
@@ -26,28 +28,28 @@ export default async function AboutPage() {
           <Heading as="h1" size="lg" accent="closets">
             The Green
           </Heading>
-          <p className="text-step-1 leading-relaxed text-ink-muted">
+          <Text tone="muted" leading="relaxed">
             An independent shop stitching together live product feeds from
             fashion brands we curate and rate ourselves. We are not a
             marketplace and we hold no stock — every piece links out to the
             brand&apos;s own store, where checkout happens.
-          </p>
+          </Text>
         </div>
 
         <div className="space-y-4 border-t border-border pt-10">
           <Eyebrow as="h2">How brands are chosen</Eyebrow>
-          <p className="text-step-1 leading-relaxed text-ink-muted">
+          <Text tone="muted" leading="relaxed">
             We look for published supply chains, recognised certification, and
             materials that survive more than a season. A brand earns its place
             here on evidence, not on a sustainability page.
-          </p>
+          </Text>
         </div>
 
         <div className="space-y-4 border-t border-border pt-10">
           <Eyebrow as="h2">Brands we carry</Eyebrow>
-          <ul className="space-y-3">
+          <List gap="sm">
             {brands.map((brand) => (
-              <li key={brand.slug}>
+              <ListItem key={brand.slug}>
                 <TextLink
                   href={`/brands/${brand.slug}`}
                   tone="default"
@@ -55,21 +57,21 @@ export default async function AboutPage() {
                 >
                   {brand.name}
                 </TextLink>
-                <p className="mt-1 text-step-0 leading-relaxed text-ink-muted">
+                <Text size="sm" tone="muted" leading="relaxed" className="mt-1">
                   {brand.summary}
-                </p>
-              </li>
+                </Text>
+              </ListItem>
             ))}
-          </ul>
+          </List>
         </div>
 
         <div className="space-y-4 border-t border-border pt-10">
           <Eyebrow as="h2">Prices</Eyebrow>
-          <p className="text-step-1 leading-relaxed text-ink-muted">
+          <Text tone="muted" leading="relaxed">
             Prices, availability and product data are pulled live from each
             brand&apos;s own store, so what you see here should match what you
             find there. When it doesn&apos;t, the brand&apos;s store is right.
-          </p>
+          </Text>
         </div>
       </Container>
     </section>

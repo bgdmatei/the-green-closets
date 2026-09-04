@@ -1,3 +1,4 @@
+import { List, ListItem } from "@/components/ui/list";
 import { ProductCard } from "@/features/shop/components/product-card";
 import type { ProductWithBrand } from "@/features/shop/types/shop.types";
 
@@ -12,12 +13,12 @@ export const ProductGrid = ({
   priorityCount = 0,
 }: ProductGridProps) => {
   return (
-    <ul className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
+    <List layout="grid" gap="none" className="grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
       {products.map((product, index) => (
-        <li key={product.slug}>
+        <ListItem key={product.slug}>
           <ProductCard product={product} priority={index < priorityCount} />
-        </li>
+        </ListItem>
       ))}
-    </ul>
+    </List>
   );
 };

@@ -1,16 +1,15 @@
-import { sanitizeRichHtml } from "@/lib/sanitize-html";
+import { renderMarkdown } from "@/lib/markdown";
 
 interface PostContentProps {
-  contentHtml: string;
+  /** Markdown source, as written in the backoffice. */
+  content: string;
 }
 
-export const PostContent = ({ contentHtml }: PostContentProps) => {
-  const safeHtml = sanitizeRichHtml(contentHtml);
-
+export const PostContent = ({ content }: PostContentProps) => {
   return (
     <div
       className="prose prose-article max-w-none font-body"
-      dangerouslySetInnerHTML={{ __html: safeHtml }}
+      dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
     />
   );
 };

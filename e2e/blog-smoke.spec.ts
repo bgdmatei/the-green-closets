@@ -19,8 +19,11 @@ test("homepage serves the hardened security headers", async ({ page }) => {
   expect(csp).toContain("object-src 'none'");
   expect(csp).toContain("frame-ancestors 'none'");
   expect(csp).toContain("upgrade-insecure-requests");
-  // Product imagery is served from the brands' own stores.
-  expect(csp).toContain("https://cdn.shopify.com");
+  // Cover images may be hosted anywhere, by product decision, so img-src is
+  // deliberately broad. It must still exclude data: as a script vector and
+  // must never fall back to '*'.
+  expect(csp).toContain("img-src 'self' data: blob: https:");
+  expect(csp).not.toContain("img-src *");
   // Static prerendering means no nonce, so inline scripts are allowed by
   // design — but `unsafe-eval` must never reach production.
   expect(csp).not.toContain("unsafe-eval");
@@ -224,6 +227,17 @@ test.describe("backoffice access", () => {
 
     const sitemap = await (await request.get("/sitemap.xml")).text();
     expect(sitemap).not.toContain("/admin");
+  });
+
+  test("every editor route is gated, not just the dashboard", async ({
+    page,
+  }) => {
+    // Each page calls the DAL itself rather than inheriting a layout check,
+    // because layouts do not re-render on navigation.
+    for (const path of ["/admin", "/admin/posts/new"]) {
+      await page.goto(path);
+      await expect(page).toHaveURL(/\/admin\/login/);
+    }
   });
 
   test("signing out is not possible with a GET", async ({ request }) => {

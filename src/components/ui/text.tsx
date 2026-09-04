@@ -15,6 +15,8 @@ const textVariants = cva("", {
       xs: "text-step--1",
       sm: "text-step-0",
       md: "text-step-1",
+      /** The standfirst under a page title. */
+      lede: "text-lede",
       lg: "text-step-2",
     },
     weight: {
