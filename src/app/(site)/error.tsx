@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Text } from "@/components/ui/text";
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -26,9 +27,9 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       <Heading as="h1" size="lg" accent="wrong">
         Something went
       </Heading>
-      <p className="text-step-1 leading-relaxed text-ink-muted">
+      <Text leading="relaxed" tone="muted">
         This page failed to load. Trying again usually fixes it.
-      </p>
+      </Text>
       <Button variant="outline" onClick={reset}>
         Try again
       </Button>

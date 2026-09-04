@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
+import { List, ListItem } from "@/components/ui/list";
+import { Text } from "@/components/ui/text";
 import { Accent, Heading } from "@/components/ui/heading";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { TextLink } from "@/components/ui/link";
@@ -67,10 +69,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <Heading as="h1" size="lg" className="mt-4">
           Filed under <Accent>{category.name}</Accent>
         </Heading>
-        <p className="mt-6 max-w-xl text-lede leading-relaxed text-ink-muted">
+        <Text size="lede" tone="muted" leading="relaxed" className="mt-6 max-w-xl">
           {posts.length} {posts.length === 1 ? "story" : "stories"} in this
           corner of the journal.
-        </p>
+        </Text>
         <TextLink
           href="/journal"
           tone="muted"
@@ -82,13 +84,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </TextLink>
       </header>
 
-      <ul className="mt-16 divide-y divide-border md:mt-24">
-        {posts.map((post) => (
-          <li key={post.slug}>
-            <PostListItem post={post} />
-          </li>
+      <List layout="divided" gap="none" className="mt-16 md:mt-24">
+        {posts.map((post, index) => (
+          <ListItem key={post.slug}>
+            <PostListItem post={post} priority={index === 0} />
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </Container>
   );
 }

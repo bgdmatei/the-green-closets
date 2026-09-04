@@ -6,6 +6,7 @@ import type { BlogCategory, BlogPost } from "@/features/blog/types/blog.types";
 import { getDb } from "@/server/db/client";
 import {
   findCategoriesWithPublishedPosts,
+  findFeaturedPosts,
   findCategoryBySlug,
   findPublishedPostBySlug,
   findPublishedPosts,
@@ -25,6 +26,13 @@ import {
  * persistent cache — pages are prerendered, and a publish invalidates them
  * explicitly.
  */
+
+/** Published posts flagged to appear on the front page. */
+export const getFeaturedPosts = cache(
+  async (limit = 2): Promise<BlogPost[]> => {
+    return findFeaturedPosts(getDb(), limit);
+  },
+);
 
 export const getPosts = cache(async (): Promise<BlogPost[]> => {
   return findPublishedPosts(getDb());

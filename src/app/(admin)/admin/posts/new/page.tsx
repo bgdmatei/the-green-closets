@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Eyebrow } from "@/components/ui/eyebrow";
 
 import { createPostAction } from "@/features/admin/actions/post.actions";
 import { PostForm } from "@/features/admin/components/post-form";
@@ -12,9 +13,9 @@ export default async function NewPostPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-14">
-      <p className="text-step--2 uppercase tracking-[0.1em] text-ink-muted">
+      <Eyebrow>
         Backoffice
-      </p>
+      </Eyebrow>
       <h1 className="mt-3 text-step-3 font-normal text-ink">New post</h1>
 
       <PostForm action={createPostAction} submitLabel="Create post" />

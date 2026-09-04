@@ -93,9 +93,11 @@ export const createPostAction = async (
     title: values.title,
     excerpt: values.excerpt,
     content: values.content,
-    type: values.type,
     status: values.status,
     categoryId,
+    coverImageUrl: values.coverImageUrl,
+    coverImageAlt: values.coverImageAlt,
+    featured: values.featured,
   });
 
   revalidatePost(values.slug, categorySlug);
@@ -121,9 +123,11 @@ export const updatePostAction = async (
     title: values.title,
     excerpt: values.excerpt,
     content: values.content,
-    type: values.type,
     status: values.status,
     categoryId,
+    coverImageUrl: values.coverImageUrl,
+    coverImageAlt: values.coverImageAlt,
+    featured: values.featured,
   });
 
   // The old slug's page must be repainted too, or a rename leaves the previous

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -33,9 +34,9 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
     <main className="mx-auto w-full max-w-3xl px-6 py-14">
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <p className="text-step--2 uppercase tracking-[0.1em] text-ink-muted">
+          <Eyebrow>
             Backoffice
-          </p>
+          </Eyebrow>
           <h1 className="mt-3 text-step-3 font-normal text-ink">Edit post</h1>
         </div>
         {post.status === "published" ? (
@@ -56,9 +57,11 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
           title: post.title,
           excerpt: post.excerpt,
           content: post.content,
-          type: post.type,
           status: post.status,
           categoryName: post.categoryName,
+          coverImageUrl: post.coverImageUrl,
+          coverImageAlt: post.coverImageAlt,
+          featured: post.featured,
         }}
       />
 

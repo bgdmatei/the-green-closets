@@ -1,4 +1,5 @@
 import { Container } from "@/components/ui/container";
+import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { ButtonLink } from "@/components/ui/link";
 
@@ -11,9 +12,9 @@ export default function NotFound() {
       <Heading as="h1" size="lg" accent="found">
         Page not
       </Heading>
-      <p className="text-step-1 leading-relaxed text-ink-muted">
+      <Text leading="relaxed" tone="muted">
         The page you requested does not exist or is no longer available.
-      </p>
+      </Text>
       <ButtonLink href="/" variant="outline">
         Back to the shop
       </ButtonLink>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Text } from "@/components/ui/text";
 
 import { Container } from "@/components/ui/container";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -21,11 +22,11 @@ export default async function ShopPage() {
     <section className="py-14 md:py-20">
       <Container className="space-y-10">
         <SectionHeader as="h1" title="Shop" accent="every brand" />
-        <p className="max-w-prose text-step-1 leading-relaxed text-ink-muted">
+        <Text leading="relaxed" tone="muted" className="max-w-prose">
           {products.length} pieces from the brands we carry. Prices and
           availability come from each brand&apos;s own store, and checkout
           happens there.
-        </p>
+        </Text>
         <ProductGrid products={products} priorityCount={4} />
       </Container>
     </section>

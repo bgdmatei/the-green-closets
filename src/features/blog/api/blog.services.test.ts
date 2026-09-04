@@ -14,6 +14,7 @@ const holder = vi.hoisted(() => ({ db: null as never }));
 vi.mock("@/server/db/client", () => ({ getDb: () => holder.db }));
 
 const {
+  getFeaturedPosts,
   getCategories,
   getCategoryBySlug,
   getPostBySlug,
@@ -42,8 +43,10 @@ beforeEach(async () => {
       title: "Newest",
       excerpt: "Most recent.",
       content: "<p>a</p>",
-      type: "top-pick",
       status: "published",
+      featured: true,
+      coverImageUrl: "https://example.com/cover.jpg",
+      coverImageAlt: "A cover",
       categoryId: basics.id,
       publishedAt: new Date("2026-04-19T00:00:00Z"),
     },
@@ -62,6 +65,8 @@ beforeEach(async () => {
       excerpt: "Not live.",
       content: "<p>c</p>",
       status: "draft",
+      // Featured *and* unpublished: the published filter must still win.
+      featured: true,
       categoryId: basics.id,
     },
   ]);
@@ -84,6 +89,32 @@ describe("getPosts", () => {
   it("omits drafts", async () => {
     const result = await getPosts();
     expect(result.some((post) => post.slug === "unpublished")).toBe(false);
+  });
+});
+
+describe("getFeaturedPosts", () => {
+  it("returns only posts flagged as featured", async () => {
+    const result = await getFeaturedPosts();
+
+    expect(result.map((post) => post.slug)).toStrictEqual(["newest"]);
+  });
+
+  it("never returns a featured draft", async () => {
+    // The dangerous combination: flagged for the front page but not published.
+    const slugs = (await getFeaturedPosts()).map((post) => post.slug);
+
+    expect(slugs).not.toContain("unpublished");
+  });
+
+  it("carries the cover image through", async () => {
+    const [post] = await getFeaturedPosts();
+
+    expect(post.coverImageUrl).toBe("https://example.com/cover.jpg");
+    expect(post.coverImageAlt).toBe("A cover");
+  });
+
+  it("respects the limit", async () => {
+    expect(await getFeaturedPosts(0)).toHaveLength(0);
   });
 });
 

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/ui/container";
+import { List, ListItem } from "@/components/ui/list";
+import { Text } from "@/components/ui/text";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Accent, Heading } from "@/components/ui/heading";
 import { getPosts } from "@/features/blog/api/blog.services";
@@ -25,10 +27,10 @@ export default async function JournalPage() {
         <Heading as="h1" size="lg" className="mt-4">
           Notes from a <Accent>greener</Accent> closet.
         </Heading>
-        <p className="mt-6 max-w-xl text-lede leading-relaxed text-ink-muted">
+        <Text size="lede" tone="muted" leading="relaxed" className="mt-6 max-w-xl">
           Guides, interviews and honest opinions on the brands and materials
           worth your money.
-        </p>
+        </Text>
       </header>
 
       {/*
@@ -36,13 +38,13 @@ export default async function JournalPage() {
         above the first or below the last, so the column reads as one column
         of type rather than a set of boxes.
       */}
-      <ul className="mt-16 divide-y divide-border md:mt-24">
-        {posts.map((post) => (
-          <li key={post.slug}>
-            <PostListItem post={post} />
-          </li>
+      <List layout="divided" gap="none" className="mt-16 md:mt-24">
+        {posts.map((post, index) => (
+          <ListItem key={post.slug}>
+            <PostListItem post={post} priority={index === 0} />
+          </ListItem>
         ))}
-      </ul>
+      </List>
     </Container>
   );
 }

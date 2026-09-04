@@ -4,7 +4,6 @@ import { desc, eq, ne, and } from "drizzle-orm";
 
 import { categories, posts } from "./schema";
 import type { Database } from "./client";
-import type { ArticleType } from "@/features/blog/types/blog.types";
 
 /**
  * Reads and writes for the backoffice.
@@ -21,16 +20,18 @@ export interface AdminPostSummary {
   slug: string;
   title: string;
   status: "draft" | "published";
-  type: ArticleType;
   categoryName: string;
   publishedAt: Date | null;
   updatedAt: Date;
+  featured: boolean;
 }
 
 export interface AdminPost extends AdminPostSummary {
   excerpt: string;
   content: string;
   categoryId: string;
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
 }
 
 export interface PostInput {
@@ -38,9 +39,11 @@ export interface PostInput {
   title: string;
   excerpt: string;
   content: string;
-  type: ArticleType;
   status: "draft" | "published";
   categoryId: string;
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
+  featured: boolean;
 }
 
 const summarySelection = {
@@ -48,10 +51,10 @@ const summarySelection = {
   slug: posts.slug,
   title: posts.title,
   status: posts.status,
-  type: posts.type,
   categoryName: categories.name,
   publishedAt: posts.publishedAt,
   updatedAt: posts.updatedAt,
+  featured: posts.featured,
 };
 
 /** Drafts first, then newest — the order you want when deciding what to work on. */
@@ -73,6 +76,8 @@ export const findPostById = async (
       excerpt: posts.excerpt,
       content: posts.content,
       categoryId: posts.categoryId,
+      coverImageUrl: posts.coverImageUrl,
+      coverImageAlt: posts.coverImageAlt,
     })
     .from(posts)
     .innerJoin(categories, eq(posts.categoryId, categories.id))

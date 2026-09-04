@@ -32,7 +32,6 @@ const seed = async () => {
       title: "Newest",
       excerpt: "The most recent one.",
       content: "<p>newest</p>",
-      type: "top-pick",
       status: "published",
       categoryId: basics.id,
       publishedAt: new Date("2026-04-19T00:00:00Z"),

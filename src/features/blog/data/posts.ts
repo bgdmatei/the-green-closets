@@ -1,7 +1,4 @@
-import {
-  ArticleTypes,
-  type BlogPost,
-} from "@/features/blog/types/blog.types";
+import type { BlogPost } from "@/features/blog/types/blog.types";
 
 /**
  * Seed fixture only.
@@ -14,7 +11,10 @@ import {
 export const posts: BlogPost[] = [
   {
     slug: "what-is-sustainable-fashion",
-    type: ArticleTypes.TopPick,
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1523381210434-271e8be1f52b",
+    coverImageAlt: "Folded knitwear in muted tones",
+    featured: true,
     title: "What Is Sustainable Fashion?",
     excerpt: "Let's make our shopping easy and sustainable.",
     content:
@@ -25,7 +25,9 @@ export const posts: BlogPost[] = [
   },
   {
     slug: "seo-checklist-for-content-sites",
-    type: ArticleTypes.Latest,
+    coverImageUrl: null,
+    coverImageAlt: null,
+    featured: false,
     title: "SEO Checklist for Content Websites",
     excerpt: "Canonical URLs and metadata in one clean setup.",
     content:
@@ -36,7 +38,10 @@ export const posts: BlogPost[] = [
   },
   {
     slug: "building-a-capsule-wardrobe",
-    type: ArticleTypes.WeeksPick,
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04",
+    coverImageAlt: "A sparse rail of neutral garments",
+    featured: true,
     title: "Building a Capsule Wardrobe",
     excerpt: "Thirty pieces, worn often, chosen once.",
     content:

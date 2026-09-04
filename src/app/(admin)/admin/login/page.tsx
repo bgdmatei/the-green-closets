@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Text } from "@/components/ui/text";
 import { redirect } from "next/navigation";
 
 import { getAdminSession, isSafeReturnPath } from "@/server/auth/dal";
@@ -27,13 +29,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-16">
-      <p className="text-step--2 uppercase tracking-[0.1em] text-ink-muted">
+      <Eyebrow>
         The Green Closets
-      </p>
+      </Eyebrow>
       <h1 className="mt-3 text-step-3 font-normal text-ink">Backoffice</h1>
-      <p className="mt-3 text-step-0 leading-relaxed text-ink-muted">
+      <Text size="sm" leading="relaxed" tone="muted" className="mt-3">
         Sign in with the GitHub account that owns this site.
-      </p>
+      </Text>
 
       {error ? (
         <p

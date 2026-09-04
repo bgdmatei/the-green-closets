@@ -20,7 +20,11 @@ const contentSecurityPolicy = [
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
     : "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://images.unsplash.com https://cdn.shopify.com",
+  // Cover images may be hosted anywhere, by product decision, so this is not
+  // an allowlist. `remotePatterns` below is deliberately NOT widened to match:
+  // that would make /_next/image an open proxy anyone could drive with our
+  // bandwidth, so cover images render unoptimized instead.
+  "img-src 'self' data: blob: https:",
   "font-src 'self'",
   "media-src 'self'",
   "manifest-src 'self'",

@@ -68,7 +68,9 @@ const seed = async () => {
       title: post.title,
       excerpt: post.excerpt,
       content: post.content,
-      type: post.type,
+      coverImageUrl: post.coverImageUrl,
+      coverImageAlt: post.coverImageAlt,
+      featured: post.featured,
       // Everything already on the live site is, by definition, published.
       status: "published" as const,
       categoryId,

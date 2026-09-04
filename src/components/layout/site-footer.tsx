@@ -1,5 +1,8 @@
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { Heading } from "@/components/ui/heading";
+import { List, ListItem } from "@/components/ui/list";
+import { Text } from "@/components/ui/text";
 import { TextLink } from "@/components/ui/link";
 import { getBrands } from "@/features/shop/api/shop.services";
 
@@ -11,20 +14,20 @@ export async function SiteFooter() {
     <footer className="mt-24 border-t border-border">
       <Container className="grid gap-10 py-14 md:grid-cols-3 md:gap-8">
         <div className="max-w-xs space-y-3">
-          <p className="font-display text-step-2 leading-none text-ink">
+          <Heading as="p" size="xs" className="leading-none">
             The Green Closets
-          </p>
-          <p className="text-step-0 leading-relaxed text-ink-muted">
+          </Heading>
+          <Text size="sm" tone="muted" leading="relaxed">
             An independent shop stitching together live product feeds from
             fashion brands we curate and rate ourselves.
-          </p>
+          </Text>
         </div>
 
         <div className="space-y-3">
           <Eyebrow as="h2">Brands</Eyebrow>
-          <ul className="space-y-2">
+          <List gap="xs">
             {brands.map((brand) => (
-              <li key={brand.slug}>
+              <ListItem key={brand.slug}>
                 <TextLink
                   href={`/brands/${brand.slug}`}
                   tone="default"
@@ -32,25 +35,25 @@ export async function SiteFooter() {
                 >
                   {brand.name}
                 </TextLink>
-              </li>
+              </ListItem>
             ))}
-          </ul>
+          </List>
         </div>
 
         <div className="max-w-sm space-y-3">
           <Eyebrow as="h2">Note</Eyebrow>
-          <p className="text-step-0 leading-relaxed text-ink-muted">
+          <Text size="sm" tone="muted" leading="relaxed">
             Prices, availability and product data are pulled live from each
             brand&apos;s own store. Checkout happens on the brand&apos;s site.
-          </p>
+          </Text>
         </div>
       </Container>
 
       <div className="border-t border-border">
         <Container className="py-6">
-          <p className="text-center text-step--1 text-ink-muted">
+          <Text size="xs" tone="muted" align="center">
             &copy; {year} The Green Closets.
-          </p>
+          </Text>
         </Container>
       </div>
     </footer>

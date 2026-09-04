@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { ArticleTypes } from "@/features/blog/types/blog.types";
 import { slugify } from "./slug";
 
 /**
@@ -26,12 +25,31 @@ export const postInputSchema = z.object({
     .max(300),
   content: z.string().trim().min(1, "The post has no body yet").max(100_000),
   categoryName: z.string().trim().min(1, "Choose a category").max(80),
-  type: z.enum([
-    ArticleTypes.TopPick,
-    ArticleTypes.WeeksPick,
-    ArticleTypes.Latest,
-  ]),
   status: z.enum(["draft", "published"]),
+  /**
+   * Any host is permitted, by decision. The URL is still parsed and its scheme
+   * checked, so `javascript:` or `data:` cannot reach an `img` tag.
+   */
+  coverImageUrl: z
+    .string()
+    .trim()
+    .max(2000)
+    .refine((value) => {
+      if (value.length === 0) return true;
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" || url.protocol === "http:";
+      } catch {
+        return false;
+      }
+    }, "The image URL must be a full http(s) address")
+    .transform((value) => (value.length > 0 ? value : null)),
+  coverImageAlt: z
+    .string()
+    .trim()
+    .max(300)
+    .transform((value) => (value.length > 0 ? value : null)),
+  featured: z.coerce.boolean(),
 });
 
 export type PostFormValues = z.input<typeof postInputSchema>;
@@ -51,7 +69,10 @@ export const readPostForm = (formData: FormData) => {
     excerpt: String(formData.get("excerpt") ?? ""),
     content: String(formData.get("content") ?? ""),
     categoryName: String(formData.get("categoryName") ?? ""),
-    type: String(formData.get("type") ?? ArticleTypes.Latest),
     status: String(formData.get("status") ?? "draft"),
+    coverImageUrl: String(formData.get("coverImageUrl") ?? ""),
+    coverImageAlt: String(formData.get("coverImageAlt") ?? ""),
+    // An unchecked checkbox submits nothing at all.
+    featured: formData.get("featured") === "on",
   };
 };
