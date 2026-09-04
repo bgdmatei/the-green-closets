@@ -226,6 +226,17 @@ test.describe("backoffice access", () => {
     expect(sitemap).not.toContain("/admin");
   });
 
+  test("every editor route is gated, not just the dashboard", async ({
+    page,
+  }) => {
+    // Each page calls the DAL itself rather than inheriting a layout check,
+    // because layouts do not re-render on navigation.
+    for (const path of ["/admin", "/admin/posts/new"]) {
+      await page.goto(path);
+      await expect(page).toHaveURL(/\/admin\/login/);
+    }
+  });
+
   test("signing out is not possible with a GET", async ({ request }) => {
     // A GET logout could be triggered by any page with an image tag.
     const response = await request.get("/api/auth/logout");

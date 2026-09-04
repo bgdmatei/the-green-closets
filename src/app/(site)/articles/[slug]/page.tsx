@@ -91,7 +91,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         <Divider />
 
-        <PostContent contentHtml={post.contentHtml} />
+        <PostContent content={post.content} />
       </Container>
     </article>
   );

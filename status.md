@@ -104,6 +104,28 @@ reason.
 - Outbound product links carry `rel="noopener noreferrer nofollow"`.
 - Only `NEXT_PUBLIC_*` env vars exist; `.env*` is gitignored.
 
+## Backoffice editor
+
+`/admin` lists every post including drafts, and `/admin/posts/new` and
+`/admin/posts/[id]` create and edit them.
+
+- **Posts are written in Markdown.** `content` holds the author's Markdown
+  exactly as typed — sanitizing on write would mean storing HTML and destroying
+  the source. Rendering goes Markdown → HTML → sanitize, and **render time is
+  the only security boundary**, so nothing may assume the column is clean.
+- Actions call `requireAdmin()` themselves. A Server Action is a public POST
+  endpoint reachable without ever loading a page, so the form's UI guarantees
+  nothing.
+- Input is validated with Zod and the slug is re-slugified server-side rather
+  than trusted, so a crafted request cannot put a path separator into a URL.
+- Categories are a free-text field, found or created on save. A separate CRUD
+  screen would be more work to build and use than a handful of categories
+  justifies.
+- Every mutation calls `revalidatePath` for the affected pages. A rename
+  repaints the old slug too, or the previous URL keeps serving a stale copy.
+- `publishedAt` is set when a post first goes live and preserved across later
+  edits.
+
 ## Backoffice authentication
 
 GitHub OAuth. No password is stored, so there is no reset flow, nothing to leak,

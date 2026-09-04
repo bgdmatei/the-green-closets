@@ -51,7 +51,7 @@ const toBlogPost = (row: PostSelectionRow): BlogPost => ({
   slug: row.slug,
   title: row.title,
   excerpt: row.excerpt,
-  contentHtml: row.content,
+  content: row.content,
   type: row.type,
   categorySlug: row.categorySlug,
   categoryName: row.categoryName,

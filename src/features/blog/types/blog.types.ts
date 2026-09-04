@@ -15,7 +15,8 @@ export interface BlogPost {
   type: ArticleType;
   title: string;
   excerpt: string;
-  contentHtml: string;
+  /** Markdown source, as authored in the backoffice. */
+  content: string;
   categorySlug: string;
   categoryName: string;
   /** ISO 8601 date (`YYYY-MM-DD`). Format for display with `formatPublishedDate`. */
