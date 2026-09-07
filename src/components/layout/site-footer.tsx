@@ -1,9 +1,9 @@
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { Heading } from "@/components/ui/heading";
+import { ExternalLink } from "@/components/ui/link";
 import { List, ListItem } from "@/components/ui/list";
 import { Text } from "@/components/ui/text";
-import { TextLink } from "@/components/ui/link";
 import { getBrands } from "@/features/shop/api/shop.services";
 
 export async function SiteFooter() {
@@ -28,13 +28,13 @@ export async function SiteFooter() {
           <List gap="xs">
             {brands.map((brand) => (
               <ListItem key={brand.slug}>
-                <TextLink
-                  href={`/brands/${brand.slug}`}
-                  tone="default"
-                  underline="hover"
-                >
+                {/*
+                  Outbound: there is no brand page, so the useful destination
+                  is the brand's own store.
+                */}
+                <ExternalLink href={brand.storeUrl} underline="hover">
                   {brand.name}
-                </TextLink>
+                </ExternalLink>
               </ListItem>
             ))}
           </List>

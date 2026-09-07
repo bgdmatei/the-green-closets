@@ -65,6 +65,46 @@ export function TextLink({
   );
 }
 
+type ExternalLinkProps = React.AnchorHTMLAttributes<HTMLAnchorElement> &
+  VariantProps<typeof textLinkVariants> & {
+    href: string;
+  };
+
+/**
+ * A link that leaves the site.
+ *
+ * `next/link` is deliberately not used here. It exists for client-side,
+ * same-origin navigation — on an external URL it renders a plain anchor and
+ * adds nothing, while implying a routing relationship that does not exist.
+ *
+ * What this does add is enforcing `rel` on every outbound link in one place.
+ * `noopener` stops the opened page reaching back through `window.opener`, and
+ * `noreferrer` withholds the referring URL. Hand-written anchors get these
+ * right until the day one does not.
+ */
+export function ExternalLink({
+  tone,
+  size,
+  face,
+  underline,
+  className,
+  rel,
+  ...props
+}: ExternalLinkProps) {
+  return (
+    <a
+      target="_blank"
+      // Caller-supplied rel is additive; the safety flags are not negotiable.
+      rel={["noopener", "noreferrer", rel].filter(Boolean).join(" ")}
+      className={cn(
+        textLinkVariants({ tone, size, face, underline }),
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 interface ButtonLinkProps
   extends Omit<NextLinkProps, "color">,
     VariantProps<typeof buttonVariants> {}
