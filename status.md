@@ -179,6 +179,24 @@ before the editor renders any user-authored content.
   `.env.local` themselves via `process.loadEnvFile`; Next does it automatically
   for the app.
 
+## Branching
+
+Two long-lived branches:
+
+- **`dev`** — the integration branch and the GitHub default. All feature
+  branches are cut from it and merge back into it, so this is where work
+  accumulates.
+- **`main`** — the release branch. It advances only by merging `dev` into it,
+  never by a feature PR and never by a direct push.
+
+The point is deploy control: once Netlify builds automatically, `main` moving is
+what ships, so feature merges must not touch it. **Netlify's production branch
+must be set explicitly to `main`** — it follows the repository default otherwise,
+which is now `dev`.
+
+`/branch-pr` reads the base from `origin/HEAD` rather than assuming, so it
+targets `dev` automatically.
+
 ## Checks
 
 - Lint: `pnpm lint`
