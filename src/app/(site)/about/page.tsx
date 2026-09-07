@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { ExternalLink } from "@/components/ui/link";
 import { List, ListItem } from "@/components/ui/list";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
-import { TextLink } from "@/components/ui/link";
 import { getBrands } from "@/features/shop/api/shop.services";
 import { buildPageMetadata } from "@/lib/metadata";
 
@@ -50,13 +50,9 @@ export default async function AboutPage() {
           <List gap="sm">
             {brands.map((brand) => (
               <ListItem key={brand.slug}>
-                <TextLink
-                  href={`/brands/${brand.slug}`}
-                  tone="default"
-                  underline="hover"
-                >
+                <ExternalLink href={brand.storeUrl} underline="hover">
                   {brand.name}
-                </TextLink>
+                </ExternalLink>
                 <Text size="sm" tone="muted" leading="relaxed" className="mt-1">
                   {brand.summary}
                 </Text>

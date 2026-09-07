@@ -53,21 +53,3 @@ export const getBrands = cache(async (): Promise<Brand[]> => {
   return brands;
 });
 
-/**
- * Returns one brand by slug.
- */
-export const getBrandBySlug = cache(
-  async (slug: string): Promise<Brand | null> => {
-    return brandBySlug.get(slug) ?? null;
-  },
-);
-
-/**
- * Returns the products carried for one brand.
- */
-export const getProductsByBrand = cache(
-  async (brandSlug: string): Promise<ProductWithBrand[]> => {
-    const all = await getProducts();
-    return all.filter((product) => product.brandSlug === brandSlug);
-  },
-);

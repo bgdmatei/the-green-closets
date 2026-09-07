@@ -48,8 +48,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       ) : null}
 
       {/*
-        A link, not a form: starting OAuth is a GET that mutates nothing, and
-        the state cookie set on the way out is what protects the callback.
+        A plain anchor, deliberately — not `next/link` and not `ExternalLink`.
+        `/api/auth/github` is a route handler that mints a CSRF state token and
+        sets a cookie. `next/link` prefetches a destination as soon as it enters
+        the viewport, so it would start an OAuth flow merely by rendering this
+        page, overwriting the state cookie before the reader clicks anything.
+        A form is not needed either: starting OAuth is a GET that mutates no
+        application data.
       */}
       <a
         href={authorizeHref}
