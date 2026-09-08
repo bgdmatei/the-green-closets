@@ -155,10 +155,29 @@ there is no credential to guess here.
 - Logout is POST-only; a GET would let any page sign the admin out with an
   image tag.
 
-**Known gap:** admin pages still run under the site-wide CSP, which allows
-inline scripts. The session cookie is `httpOnly`, so an XSS bug could not
-exfiltrate it, but a nonce-based CSP for the `(admin)` group is worth adding
-before the editor renders any user-authored content.
+## Two Content Security Policies
+
+The site runs two policies, and they must not overlap — a browser given two
+`Content-Security-Policy` headers enforces the **intersection**, so the pair
+below would block Next's own scripts if both applied to one route.
+
+- **Public pages** — set in `next.config.ts`, whose matcher deliberately
+  excludes `/admin` and `/api/auth`. Allows `'unsafe-inline'` scripts, which is
+  what keeps every public route prerendered: a nonce must be unique per request
+  and static HTML is generated once. Acceptable there because those pages take
+  no user input and render no authored content.
+- **The backoffice** — set per request in `src/proxy.ts`:
+  `script-src 'self' 'nonce-…' 'strict-dynamic'`. It is authenticated, so it
+  renders per request and a nonce is possible; and the editor displays content
+  someone typed, so it needs the stricter policy.
+
+`style-src` keeps `'unsafe-inline'` in both. Injected CSS can neither execute
+code nor read an `httpOnly` cookie, and removing it breaks Next's own inlined
+styles for a marginal gain.
+
+The proxy matcher covers backoffice paths only. Running it across the public
+site would either force those pages out of static rendering or hand them a nonce
+their prerendered HTML cannot carry.
 
 ## SEO
 

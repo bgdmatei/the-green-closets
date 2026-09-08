@@ -72,7 +72,17 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        /**
+         * Everything except the backoffice.
+         *
+         * `/admin` and `/api/auth` get a stricter, nonce-based CSP from
+         * `src/proxy.ts`. They must be excluded here rather than merely
+         * overridden: a browser given two Content-Security-Policy headers
+         * enforces both, and the intersection of this policy's
+         * `'unsafe-inline'` with the proxy's `'strict-dynamic'` would block
+         * Next's own scripts.
+         */
+        source: "/((?!admin|api/auth).*)",
         headers: isDev
           ? securityHeaders
           : [
