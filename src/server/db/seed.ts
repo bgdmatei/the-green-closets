@@ -26,7 +26,11 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 
 import { posts as staticPosts } from "@/features/blog/data/posts";
-import { categories, posts } from "@/server/db/schema";
+import {
+  brands as staticBrands,
+  products as staticProducts,
+} from "@/features/shop/data/shop.data";
+import { brands, categories, posts, products } from "@/server/db/schema";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -84,8 +88,48 @@ const seed = async () => {
       .onConflictDoUpdate({ target: posts.slug, set: values });
   }
 
+  // --- shop ---
+  await db
+    .insert(brands)
+    .values(
+      staticBrands.map((brand) => ({
+        slug: brand.slug,
+        name: brand.name,
+        storeUrl: brand.storeUrl,
+      })),
+    )
+    .onConflictDoNothing({ target: brands.slug });
+
+  const brandRows = await db.select().from(brands);
+  const brandIdBySlug = new Map(brandRows.map((row) => [row.slug, row.id]));
+
+  for (const product of staticProducts) {
+    const brandId = brandIdBySlug.get(product.brandSlug);
+    if (!brandId) throw new Error(`No brand row for "${product.brandSlug}"`);
+
+    const values = {
+      slug: product.slug,
+      name: product.name,
+      colour: product.colour ?? null,
+      brandId,
+      priceCents: product.priceCents,
+      currency: product.currency,
+      imageUrl: product.imageUrl,
+      hoverImageUrl: product.hoverImageUrl ?? null,
+      productUrl: product.productUrl,
+      isWeeklyPick: product.isWeeklyPick,
+      updatedAt: new Date(),
+    };
+
+    await db
+      .insert(products)
+      .values(values)
+      .onConflictDoUpdate({ target: products.slug, set: values });
+  }
+
   console.log(
-    `Seeded ${uniqueCategories.size} categories and ${staticPosts.length} posts.`,
+    `Seeded ${uniqueCategories.size} categories, ${staticPosts.length} posts, ` +
+      `${staticBrands.length} brands and ${staticProducts.length} products.`,
   );
 };
 
