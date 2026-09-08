@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Eyebrow } from "@/components/ui/eyebrow";
 import { ExternalLink } from "@/components/ui/link";
 import {
   deleteProductAction,
@@ -34,8 +33,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     <main className="mx-auto w-full max-w-3xl px-6 py-14">
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <Eyebrow>Backoffice</Eyebrow>
-          <h1 className="mt-3 text-step-3 font-normal text-ink">Edit product</h1>
+          <h1 className="text-step-3 font-normal text-ink">Edit product</h1>
         </div>
         <ExternalLink href={product.productUrl} tone="muted" underline="hover">
           View on store &rarr;

@@ -74,9 +74,10 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
         <label className="flex items-start gap-3">
           <input type="checkbox" name="isWeeklyPick" defaultChecked={initial?.isWeeklyPick ?? false} className="mt-1" />
           <span>
-            <Text as="span" size="sm" className="block">Include in this week&apos;s picks</Text>
+            <Text as="span" size="sm" className="block">Featured</Text>
             <Text as="span" size="xs" tone="muted" className="mt-1 block">
-              Shows on /week-picks. Everything in the shop stays listed either way.
+              Appears in this week&apos;s picks. Everything in the shop stays
+              listed either way.
             </Text>
           </span>
         </label>
