@@ -1,11 +1,13 @@
 import type { Brand, Product } from "@/features/shop/types/shop.types";
 
 /**
- * Sample catalogue.
+ * Seed fixture only.
  *
- * This is a stand-in for the live product feed. Once the backend exists it will
- * pull this shape from each brand's own store, so nothing outside this file
- * assumes the data is local — every view goes through `shop.services`.
+ * The shop reads from Postgres and is edited in the backoffice; this is what
+ * `pnpm db:seed` loads into a fresh database. No page imports it.
+ *
+ * It remains the shape a live product feed would deliver, so it doubles as the
+ * reference for that work.
  *
  * Imagery is referenced from the brand's own CDN rather than copied, which is
  * how the feed will supply it too. Prices are indicative and go stale; the

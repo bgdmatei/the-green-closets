@@ -26,6 +26,9 @@ export default async function AdminHomePage() {
           <h1 className="mt-3 text-step-3 font-normal text-ink">Posts</h1>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/admin/products" className="text-step-0 text-ink-muted hover:text-ink">
+            Shop
+          </Link>
           <Link
             href="/admin/posts/new"
             className="inline-flex h-10 items-center bg-ink px-5 text-step-0 text-surface transition-colors hover:bg-ink/85"
