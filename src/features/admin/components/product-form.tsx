@@ -12,6 +12,7 @@ interface ProductFormProps {
     name: string;
     brandName: string;
     imageUrl: string;
+    hoverImageUrl: string;
     productUrl: string;
     price: string;
     isWeeklyPick: boolean;
@@ -58,6 +59,15 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
         <input id="imageUrl" name="imageUrl" type="url" className={field} defaultValue={initial?.imageUrl} required maxLength={2000} placeholder="https://…" />
         <Text size="xs" tone="muted">
           Any https address. Images on known hosts are optimised automatically.
+        </Text>
+      </div>
+
+      <div className="space-y-2">
+        <label className={label} htmlFor="hoverImageUrl">Hover image URL</label>
+        <input id="hoverImageUrl" name="hoverImageUrl" type="url" className={field} defaultValue={initial?.hoverImageUrl} maxLength={2000} placeholder="https://…" />
+        <Text size="xs" tone="muted">
+          Optional. A second shot of the same garment, cross-faded in when the
+          card is hovered. Leave it empty and the card simply holds still.
         </Text>
       </div>
 

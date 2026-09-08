@@ -84,6 +84,7 @@ export const createProductAction = async (
     brandId: result.brandId,
     priceCents: result.values.price,
     imageUrl: result.values.imageUrl,
+    hoverImageUrl: result.values.hoverImageUrl,
     productUrl: result.values.productUrl,
     isWeeklyPick: result.values.isWeeklyPick,
   });
@@ -112,6 +113,7 @@ export const updateProductAction = async (
     brandId: result.brandId,
     priceCents: result.values.price,
     imageUrl: result.values.imageUrl,
+    hoverImageUrl: result.values.hoverImageUrl,
     productUrl: result.values.productUrl,
     isWeeklyPick: result.values.isWeeklyPick,
   });
@@ -159,6 +161,7 @@ export const toggleWeeklyPickAction = async (
     brandId,
     priceCents: current.priceCents,
     imageUrl: current.imageUrl,
+    hoverImageUrl: current.hoverImageUrl ?? null,
     productUrl: current.productUrl,
     isWeeklyPick: !current.isWeeklyPick,
   });

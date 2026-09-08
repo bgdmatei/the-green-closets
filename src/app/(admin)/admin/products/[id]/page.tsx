@@ -47,6 +47,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
           name: product.name,
           brandName: product.brandName,
           imageUrl: product.imageUrl,
+          hoverImageUrl: product.hoverImageUrl ?? "",
           productUrl: product.productUrl,
           price: centsToInput(product.priceCents),
           isWeeklyPick: product.isWeeklyPick,

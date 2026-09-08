@@ -3,20 +3,30 @@ import { z } from "zod";
 import { parsePriceToCents } from "@/features/shop/lib/parse-price";
 import { slugify } from "./slug";
 
+const isHttpUrl = (value: string): boolean => {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
+};
+
 const httpUrl = (message: string) =>
+  z.string().trim().min(1, message).max(2000).refine(isHttpUrl, message);
+
+/**
+ * Same parsing, but an empty field is a legitimate answer and becomes `null`
+ * rather than an error — the column is nullable and the card only renders the
+ * second shot when there is one.
+ */
+const optionalHttpUrl = (message: string) =>
   z
     .string()
     .trim()
-    .min(1, message)
     .max(2000)
-    .refine((value) => {
-      try {
-        const { protocol } = new URL(value);
-        return protocol === "https:" || protocol === "http:";
-      } catch {
-        return false;
-      }
-    }, message);
+    .refine((value) => value === "" || isHttpUrl(value), message)
+    .transform((value) => (value === "" ? null : value));
 
 /**
  * The validation boundary for catalogue entries.
@@ -30,6 +40,9 @@ export const productInputSchema = z.object({
   name: z.string().trim().min(1, "Give the product a title").max(200),
   brandName: z.string().trim().min(1, "Name the brand").max(80),
   imageUrl: httpUrl("The image must be a full http(s) address"),
+  hoverImageUrl: optionalHttpUrl(
+    "The hover image must be a full http(s) address",
+  ),
   productUrl: httpUrl("The website must be a full http(s) address"),
   price: z
     .string()
@@ -55,6 +68,7 @@ export const readProductForm = (formData: FormData) => ({
   name: String(formData.get("name") ?? ""),
   brandName: String(formData.get("brandName") ?? ""),
   imageUrl: String(formData.get("imageUrl") ?? ""),
+  hoverImageUrl: String(formData.get("hoverImageUrl") ?? ""),
   productUrl: String(formData.get("productUrl") ?? ""),
   price: String(formData.get("price") ?? ""),
   // An unchecked checkbox submits nothing at all.
