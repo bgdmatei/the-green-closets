@@ -1,21 +1,6 @@
 import Image from "next/image";
 
-/**
- * Hosts already trusted in `next.config.ts` `remotePatterns`.
- *
- * Kept in step with that list by hand, which is acceptable because widening it
- * is a deliberate act: adding a host here without adding it there means the
- * image silently fails to load in production.
- */
-const OPTIMIZABLE_HOSTS = new Set(["images.unsplash.com", "cdn.shopify.com"]);
-
-const canOptimize = (url: string): boolean => {
-  try {
-    return OPTIMIZABLE_HOSTS.has(new URL(url).hostname);
-  } catch {
-    return false;
-  }
-};
+import { canOptimizeImage } from "@/lib/image-hosts";
 
 interface PostCoverProps {
   url: string;
@@ -49,7 +34,7 @@ export const PostCover = ({
   priority,
 }: PostCoverProps) => (
   <div className={`relative overflow-hidden bg-surface-raised ${className ?? ""}`}>
-    {canOptimize(url) ? (
+    {canOptimizeImage(url) ? (
       <Image
         src={url}
         alt={alt ?? ""}
