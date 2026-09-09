@@ -6,6 +6,7 @@ import {
   deleteProductAction,
   updateProductAction,
 } from "@/features/admin/actions/product.actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ProductForm } from "@/features/admin/components/product-form";
 import { centsToInput } from "@/features/shop/lib/parse-price";
 import { requireAdminOrRedirect } from "@/server/auth/dal";
@@ -54,15 +55,16 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
         }}
       />
 
-      <form action={deleteProductAction} className="mt-12 border-t border-border pt-6">
-        <input type="hidden" name="productId" value={product.id} />
-        <button
-          type="submit"
-          className="h-9 border border-border px-4 text-step-0 text-ink-muted transition-colors hover:border-ink hover:text-ink"
-        >
-          Remove from shop
-        </button>
-      </form>
+      <div className="mt-12 border-t border-border pt-6">
+        <ConfirmDialog
+          trigger="Remove from shop"
+          title="Remove this product?"
+          description={`"${product.name}" will be taken out of the shop and this week's picks. This cannot be undone.`}
+          confirmLabel="Remove product"
+          action={deleteProductAction}
+          field={{ name: "productId", value: product.id }}
+        />
+      </div>
     </main>
   );
 }

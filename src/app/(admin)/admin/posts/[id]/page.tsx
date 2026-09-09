@@ -5,6 +5,7 @@ import {
   deletePostAction,
   updatePostAction,
 } from "@/features/admin/actions/post.actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PostForm } from "@/features/admin/components/post-form";
 import { requireAdminOrRedirect } from "@/server/auth/dal";
 import { getDb } from "@/server/db/client";
@@ -48,15 +49,16 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         }}
       />
 
-      <form action={deletePostAction} className="mt-12 border-t border-border pt-6">
-        <input type="hidden" name="postId" value={post.id} />
-        <button
-          type="submit"
-          className="h-9 border border-border px-4 text-step-0 text-ink-muted transition-colors hover:border-ink hover:text-ink"
-        >
-          Delete this post
-        </button>
-      </form>
+      <div className="mt-12 border-t border-border pt-6">
+        <ConfirmDialog
+          trigger="Delete this post"
+          title="Delete this post?"
+          description={`"${post.title}" will be removed from the journal and any link to it will stop working. This cannot be undone.`}
+          confirmLabel="Delete post"
+          action={deletePostAction}
+          field={{ name: "postId", value: post.id }}
+        />
+      </div>
     </main>
   );
 }
