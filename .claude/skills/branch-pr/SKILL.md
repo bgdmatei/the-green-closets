@@ -57,9 +57,14 @@ Check these first and stop with a clear message if one fails:
 
 ## Steps
 
-1. **Find the base branch.** Read it, do not assume `main`:
+1. **Find the base branch.** Read it, never assume:
    `git symbolic-ref --short refs/remotes/origin/HEAD | sed 's|^origin/||'`.
-   Fall back to `main` only if that is unset.
+   Fall back to `dev` only if that is unset.
+
+   **This repository uses two long-lived branches.** `dev` is the integration
+   branch and the default, so feature work targets it. `main` is the release
+   branch and is only ever updated by merging `dev` into it — never open a
+   feature PR against `main`, and never push to it directly.
 
 2. **Get onto a feature branch.** If HEAD is already on a non-base branch, reuse
    it — do not create a second branch, and say which one you reused. Otherwise
@@ -109,6 +114,8 @@ Check these first and stop with a clear message if one fails:
 ## Guardrails
 
 - Never open a PR whose base and head are the same branch.
+- Never target `main`. Feature branches merge into `dev`; `main` advances only
+  by a deliberate `dev` → `main` release.
 - Never force-push, and never rewrite published history, unless the user asks
   for that specific thing.
 - If the branch already has an open PR, update it by pushing — do not open

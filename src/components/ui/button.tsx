@@ -20,6 +20,13 @@ export const buttonVariants = cva(
           "border border-ink-inverse/70 text-ink-inverse backdrop-blur-[1px] " +
           "hover:bg-ink-inverse hover:text-ink hover:border-ink-inverse",
         ghost: "text-ink hover:text-ink-muted",
+        /**
+         * A hairline control that sits beside content rather than competing
+         * with it — for an action that is always available but is not the
+         * reason you came to the page.
+         */
+        subtle:
+          "border border-border text-ink-muted hover:border-ink hover:text-ink",
       },
       size: {
         sm: "h-8 px-3 text-step--1",

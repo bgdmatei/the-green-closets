@@ -1,23 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { List, ListItem } from "@/components/ui/list";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/shop", label: "Shop all" },
-  { href: "/week-picks", label: "Week's picks" },
   { href: "/journal", label: "Journal" },
-  { href: "/brands/armedangels", label: "Armedangels" },
+  { href: "/week-picks", label: "Week's picks" },
+  { href: "/shop", label: "Shop all" },
   { href: "/about", label: "About" },
 ];
 
 /**
- * A client component only so the current route can be highlighted. Plain
- * anchors rather than next/link: these are top-level destinations, and the
- * whole site is statically prerendered, so a full navigation costs nothing and
- * keeps the shipped JS to the `usePathname` read.
+ * A client component only so the current route can be highlighted.
+ *
+ * These are same-origin routes, so `next/link` is the right tool: it prefetches
+ * each destination as it enters the viewport and navigates client-side. The
+ * component already ships to the browser for `usePathname`, so this costs
+ * nothing extra.
  */
 export function NavLinks() {
   const pathname = usePathname();
@@ -31,7 +33,7 @@ export function NavLinks() {
 
         return (
           <ListItem key={link.href} className="shrink-0">
-            <a
+            <Link
               href={link.href}
               aria-current={isCurrent ? "page" : undefined}
               className={cn(
@@ -41,7 +43,7 @@ export function NavLinks() {
               )}
             >
               {link.label}
-            </a>
+            </Link>
           </ListItem>
         );
       })}

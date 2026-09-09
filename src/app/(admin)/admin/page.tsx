@@ -3,6 +3,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { Text } from "@/components/ui/text";
 import Link from "next/link";
 
+import { ButtonLink } from "@/components/ui/link";
 import { List, ListItem } from "@/components/ui/list";
 import { requireAdminOrRedirect } from "@/server/auth/dal";
 import { getDb } from "@/server/db/client";
@@ -13,42 +14,33 @@ export const metadata: Metadata = { title: "Posts" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
-  const session = await requireAdminOrRedirect("/admin");
+  // Still gated here: the layout reads the session but does not enforce it.
+  await requireAdminOrRedirect("/admin");
   const posts = await listPosts(getDb());
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14">
-      <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <div>
-          <Eyebrow>
-            Backoffice
-          </Eyebrow>
-          <h1 className="mt-3 text-step-3 font-normal text-ink">Posts</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/posts/new"
-            className="inline-flex h-10 items-center bg-ink px-5 text-step-0 text-surface transition-colors hover:bg-ink/85"
-          >
-            New post
-          </Link>
-          <form action="/api/auth/logout" method="post">
-            <button
-              type="submit"
-              className="h-10 border border-border px-4 text-step-0 text-ink transition-colors hover:bg-ink hover:text-surface"
-            >
-              Sign out {session.githubLogin}
-            </button>
-          </form>
-        </div>
+      <h1 className="text-step-3 font-normal text-ink">Posts</h1>
+
+      {/*
+        The add action sits with the table it acts on rather than in the page
+        header, where it competed with the title and the sign-out control.
+      */}
+      <div className="mt-12 flex items-baseline justify-between gap-4">
+        <Eyebrow as="h2">
+          {posts.length} post{posts.length === 1 ? "" : "s"}
+        </Eyebrow>
+        <ButtonLink href="/admin/posts/new" variant="subtle" size="sm">
+          New post
+        </ButtonLink>
       </div>
 
       {posts.length === 0 ? (
-        <Text size="sm" tone="muted" className="mt-10 border border-border bg-surface p-6">
+        <Text size="sm" tone="muted" className="mt-4 border border-border bg-surface p-6">
           No posts yet. Write the first one.
         </Text>
       ) : (
-        <List layout="divided" gap="none" className="mt-10 border-y border-border">
+        <List layout="divided" gap="none" className="mt-4 border-y border-border">
           {posts.map((post) => (
             <ListItem key={post.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-4">
               <Link

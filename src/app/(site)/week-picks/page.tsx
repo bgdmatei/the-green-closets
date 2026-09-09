@@ -23,8 +23,8 @@ export default async function WeekPicksPage() {
       <section className="border-b border-border py-6 md:py-8">
         <Container>
           <h1 className="sr-only">This week&apos;s picks</h1>
+          {/* Decorative banner: the page it would link to is the one you are on. */}
           <MediaTile
-            href="/shop"
             src="/images/banners/weekly.jpg"
             ratio="banner"
             eyebrow="Fresh every Monday"

@@ -1,6 +1,7 @@
 import {
   boolean,
   index,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -129,3 +130,74 @@ export const sessions = pgTable(
 );
 
 export type SessionRow = typeof sessions.$inferSelect;
+
+/**
+ * Brands whose products the shop carries.
+ *
+ * Like categories, these are typed as free text in the editor and found or
+ * created on save — a separate management screen would cost more than a handful
+ * of brands justifies.
+ */
+export const brands = pgTable(
+  "brands",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    /** The brand's own store. Every product link ultimately lands here. */
+    storeUrl: text("store_url"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [uniqueIndex("brands_slug_idx").on(table.slug)],
+);
+
+/**
+ * The catalogue.
+ *
+ * The shop holds no stock: every row is a pointer at an item on the brand's own
+ * store, which is why `productUrl` is required and there is no inventory,
+ * variant or fulfilment data here.
+ *
+ * `isWeeklyPick` is a flag rather than a separate table, so a pick is always a
+ * real catalogue item. Note the consequence: once a live product feed exists it
+ * will own these rows, and hand-curated entries will need reconciling with it.
+ */
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    /** Colourway. Not in the editor; carried for feed-sourced rows. */
+    colour: text("colour"),
+    brandId: uuid("brand_id")
+      .notNull()
+      .references(() => brands.id, { onDelete: "restrict" }),
+    /** Minor units, so money is never held in a float. */
+    priceCents: integer("price_cents").notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    imageUrl: text("image_url").notNull(),
+    /** Secondary shot revealed on hover. Not in the editor. */
+    hoverImageUrl: text("hover_image_url"),
+    /** Where the reader is sent. The shop never completes a sale itself. */
+    productUrl: text("product_url").notNull(),
+    isWeeklyPick: boolean("is_weekly_pick").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("products_slug_idx").on(table.slug),
+    index("products_is_weekly_pick_idx").on(table.isWeeklyPick),
+    index("products_brand_id_idx").on(table.brandId),
+    index("products_created_at_idx").on(table.createdAt),
+  ],
+);
+
+export type BrandRow = typeof brands.$inferSelect;
+export type ProductRow = typeof products.$inferSelect;

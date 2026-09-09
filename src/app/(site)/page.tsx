@@ -46,7 +46,7 @@ export default async function Homepage() {
               eyebrow="The shop"
               title="Shop"
               accent="every brand"
-              action="Browse the edit"
+              action="Browse the shop"
               priority
               sizes="(min-width: 768px) 604px, 100vw"
             />
@@ -63,7 +63,7 @@ export default async function Homepage() {
             eyebrow="Fresh every Monday"
             title="This week's"
             accent="picks"
-            action="See the edit"
+            action="See the picks"
             actionAsButton
             sizes="(min-width: 1280px) 1232px, 100vw"
           />

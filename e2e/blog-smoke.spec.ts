@@ -76,7 +76,9 @@ test("the weekly banner button restyles only on its own hover", async ({
   await page.goto("/");
 
   const tile = page.locator('main a[href="/week-picks"]').first();
-  const button = page.getByText("See the edit", { exact: false }).first();
+  // Located structurally rather than by its label: the point of this test is
+  // the hover behaviour, and it should not break when the copy is reworded.
+  const button = tile.locator('span[class*="border"]').first();
   await button.scrollIntoViewIfNeeded();
 
   const background = () =>
@@ -238,6 +240,62 @@ test.describe("backoffice access", () => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/admin\/login/);
     }
+  });
+
+  test("the backoffice gets a strict nonce CSP, the public site does not", async ({
+    request,
+  }) => {
+    const admin = (await request.get("/admin/login")).headers()[
+      "content-security-policy"
+    ];
+    const publicPage = (await request.get("/journal")).headers()[
+      "content-security-policy"
+    ];
+
+    // The backoffice renders authored content, so inline *scripts* are refused
+    // outright and only nonced ones run. Asserted against the script-src
+    // directive alone: style-src keeps 'unsafe-inline' on purpose, because
+    // injected CSS can neither execute code nor read an httpOnly cookie.
+    const scriptSrc = /script-src ([^;]+)/.exec(admin ?? "")?.[1] ?? "";
+
+    expect(scriptSrc).toMatch(/'nonce-[^']+'/);
+    expect(scriptSrc).toContain("'strict-dynamic'");
+    expect(scriptSrc).not.toContain("'unsafe-inline'");
+    expect(scriptSrc).not.toContain("'unsafe-eval'");
+
+    // The public site is prerendered, so a per-request nonce is impossible
+    // there and it keeps the inline-script policy.
+    expect(publicPage).toContain("script-src 'self' 'unsafe-inline'");
+    expect(publicPage).not.toContain("nonce-");
+  });
+
+  test("the admin nonce is fresh on every request", async ({ request }) => {
+    const nonceOf = async () =>
+      /nonce-([^']+)/.exec(
+        (await request.get("/admin/login")).headers()[
+          "content-security-policy"
+        ] ?? "",
+      )?.[1];
+
+    const [first, second] = [await nonceOf(), await nonceOf()];
+
+    expect(first).toBeTruthy();
+    // A reused nonce is no better than 'unsafe-inline'.
+    expect(first).not.toBe(second);
+  });
+
+  test("every script on an admin page carries the nonce", async ({ page }) => {
+    await page.goto("/admin/login");
+
+    const scripts = await page.evaluate(() => {
+      const all = [...document.querySelectorAll("script")];
+      return { total: all.length, nonced: all.filter((s) => s.nonce).length };
+    });
+
+    // One unnonced inline script would be blocked and break the page; one
+    // unnonced *allowed* script would mean the policy is not doing its job.
+    expect(scripts.total).toBeGreaterThan(0);
+    expect(scripts.nonced).toBe(scripts.total);
   });
 
   test("signing out is not possible with a GET", async ({ request }) => {

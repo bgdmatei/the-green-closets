@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { OPTIMIZABLE_IMAGE_SOURCES } from "./src/lib/image-hosts";
+
 const isDev = process.env.NODE_ENV === "development";
 
 /**
@@ -53,18 +55,15 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        // Product imagery is served from each brand's own store, the same way
-        // the live product feed will supply it once the backend exists.
-        protocol: "https",
-        hostname: "cdn.shopify.com",
-      },
-    ],
+    // Derived from one list, so the optimizer's allowlist cannot drift from
+    // the component that decides which URLs are safe to send through it.
+    remotePatterns: OPTIMIZABLE_IMAGE_SOURCES.map(
+      ({ hostname, pathnamePrefix }) => ({
+        protocol: "https" as const,
+        hostname,
+        ...(pathnamePrefix ? { pathname: `${pathnamePrefix}**` } : {}),
+      }),
+    ),
   },
   experimental: {
     optimizePackageImports: ["@radix-ui/react-icons"],
@@ -72,7 +71,17 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        /**
+         * Everything except the backoffice.
+         *
+         * `/admin` and `/api/auth` get a stricter, nonce-based CSP from
+         * `src/proxy.ts`. They must be excluded here rather than merely
+         * overridden: a browser given two Content-Security-Policy headers
+         * enforces both, and the intersection of this policy's
+         * `'unsafe-inline'` with the proxy's `'strict-dynamic'` would block
+         * Next's own scripts.
+         */
+        source: "/((?!admin|api/auth).*)",
         headers: isDev
           ? securityHeaders
           : [
