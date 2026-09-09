@@ -81,4 +81,90 @@ describe("isAllowedAdmin", () => {
       isAllowedAdmin({ githubUserId: "2", githubLogin: "not-bgdmatei-really" }),
     ).toBe(false);
   });
+
+  describe("with more than one account configured", () => {
+    it("admits every account on the list", async () => {
+      const { isAllowedAdmin } = await load("bgdmatei,second-admin");
+
+      expect(isAllowedAdmin({ githubUserId: "1", githubLogin: "bgdmatei" })).toBe(true);
+      expect(isAllowedAdmin({ githubUserId: "2", githubLogin: "second-admin" })).toBe(true);
+    });
+
+    it("still refuses everyone else", async () => {
+      const { isAllowedAdmin } = await load("bgdmatei,second-admin");
+
+      expect(isAllowedAdmin({ githubUserId: "3", githubLogin: "third" })).toBe(false);
+    });
+
+    it("tolerates the spacing a human types", async () => {
+      const { isAllowedAdmin } = await load("  bgdmatei , second-admin ,, ");
+
+      expect(isAllowedAdmin({ githubUserId: "1", githubLogin: "bgdmatei" })).toBe(true);
+      expect(isAllowedAdmin({ githubUserId: "2", githubLogin: "second-admin" })).toBe(true);
+    });
+
+    it("never treats the whole list as one login", async () => {
+      // The bug this replaces: an exact match against the raw variable, which
+      // matched nobody the moment a comma was added and locked everyone out.
+      const { isAllowedAdmin } = await load("bgdmatei,second-admin");
+
+      expect(
+        isAllowedAdmin({ githubUserId: "9", githubLogin: "bgdmatei,second-admin" }),
+      ).toBe(false);
+    });
+  });
+
+  describe("matching on the numeric user id", () => {
+    it("admits the account with that id, whatever it is called now", async () => {
+      const { isAllowedAdmin } = await load("id:583231");
+
+      expect(isAllowedAdmin({ githubUserId: "583231", githubLogin: "renamed" })).toBe(true);
+    });
+
+    it("refuses a different account, even one using the id as its login", async () => {
+      // A GitHub username may be all digits, which is why an id entry carries
+      // the prefix: "583231" is a valid login and must not match an id.
+      const { isAllowedAdmin } = await load("id:583231");
+
+      expect(isAllowedAdmin({ githubUserId: "42", githubLogin: "583231" })).toBe(false);
+    });
+
+    it("does not let an id entry match a login of the same text", async () => {
+      const { isAllowedAdmin } = await load("id:583231");
+
+      expect(isAllowedAdmin({ githubUserId: "0", githubLogin: "id:583231" })).toBe(false);
+    });
+
+    it("mixes ids and logins in one list", async () => {
+      const { isAllowedAdmin } = await load("bgdmatei, id:583231");
+
+      expect(isAllowedAdmin({ githubUserId: "1", githubLogin: "bgdmatei" })).toBe(true);
+      expect(isAllowedAdmin({ githubUserId: "583231", githubLogin: "someone" })).toBe(true);
+      expect(isAllowedAdmin({ githubUserId: "2", githubLogin: "nobody" })).toBe(false);
+    });
+
+    it("closes the renamed-account hole a login list leaves open", async () => {
+      // Listing a login hands admin to whoever later claims that name. An id
+      // entry does not: the account that had it keeps it.
+      const byLogin = await load("bgdmatei");
+      expect(
+        byLogin.isAllowedAdmin({ githubUserId: "99999", githubLogin: "bgdmatei" }),
+      ).toBe(true);
+
+      const byId = await load("id:583231");
+      expect(
+        byId.isAllowedAdmin({ githubUserId: "99999", githubLogin: "bgdmatei" }),
+      ).toBe(false);
+    });
+  });
+
+  it("refuses a list that names nobody, rather than admitting anyone", async () => {
+    // A value like "," passes a length check but parses to no entries. It must
+    // fail loudly when read, not deny every login with no explanation.
+    const { isAllowedAdmin } = await load(" , ,, ");
+
+    expect(() =>
+      isAllowedAdmin({ githubUserId: "1", githubLogin: "bgdmatei" }),
+    ).toThrow(/ADMIN_GITHUB_LOGIN/);
+  });
 });

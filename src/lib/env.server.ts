@@ -49,13 +49,30 @@ const authEnvSchema = z.object({
   GITHUB_CLIENT_ID: z.string().min(1, "GITHUB_CLIENT_ID is required"),
   GITHUB_CLIENT_SECRET: z.string().min(1, "GITHUB_CLIENT_SECRET is required"),
   /**
-   * The single GitHub account permitted to sign in to the backoffice.
+   * The GitHub accounts permitted to sign in to the backoffice, comma
+   * separated. Each entry is a login, or `id:<number>` for a numeric user id.
    *
    * Without this, anyone with a GitHub account could complete the OAuth flow
    * and be issued an admin session — OAuth proves who someone is, not that they
    * are allowed in. This is the authorization half.
+   *
+   * Refined rather than merely non-empty: a value of "," or " " passes a length
+   * check but names nobody, which would lock every account out at the login
+   * screen with no explanation. Better to fail loudly when it is read.
    */
-  ADMIN_GITHUB_LOGIN: z.string().min(1, "ADMIN_GITHUB_LOGIN is required"),
+  ADMIN_GITHUB_LOGIN: z
+    .string()
+    .min(1, "ADMIN_GITHUB_LOGIN is required")
+    .transform((value) =>
+      value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0),
+    )
+    .refine(
+      (entries) => entries.length > 0,
+      "ADMIN_GITHUB_LOGIN must name at least one account",
+    ),
 });
 
 export type DatabaseEnv = z.infer<typeof databaseEnvSchema>;
