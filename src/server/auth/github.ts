@@ -104,6 +104,9 @@ export const fetchGitHubUser = async (
   };
 };
 
+/** Marks an entry as GitHub's numeric user id rather than a login. */
+const ID_PREFIX = "id:";
+
 /**
  * The authorization decision.
  *
@@ -111,10 +114,25 @@ export const fetchGitHubUser = async (
  * Any GitHub user in the world can do that, so identity is not permission —
  * this is what actually decides who gets in.
  *
- * Compared case-insensitively because GitHub logins are case-preserving but
- * not case-sensitive.
+ * The allowlist is a comma-separated list, so more than one person can hold
+ * admin access. An entry is either a login, compared case-insensitively
+ * because GitHub logins are case-preserving but not case-sensitive, or
+ * `id:<number>` for GitHub's numeric user id.
+ *
+ * Prefer the id form. A login can be changed, and an abandoned one can be
+ * claimed by someone else — so an allowlist of logins hands admin to whoever
+ * picks up a name you stop using. The numeric id never moves between accounts.
+ * The prefix is what keeps the two apart: a GitHub username may be all digits,
+ * so `12345` is a perfectly good login and cannot be assumed to be an id.
  */
 export const isAllowedAdmin = (user: GitHubUser): boolean => {
   const { ADMIN_GITHUB_LOGIN } = getAuthEnv();
-  return user.githubLogin.toLowerCase() === ADMIN_GITHUB_LOGIN.toLowerCase();
+
+  // Already split and trimmed by the env schema, which also rejects a value
+  // that names nobody rather than letting it deny everyone at the login screen.
+  return ADMIN_GITHUB_LOGIN.some((entry) =>
+    entry.startsWith(ID_PREFIX)
+      ? entry.slice(ID_PREFIX.length).trim() === user.githubUserId
+      : entry.toLowerCase() === user.githubLogin.toLowerCase(),
+  );
 };
