@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
@@ -31,19 +30,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-14">
-      <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <div>
-          <h1 className="text-step-3 font-normal text-ink">Edit post</h1>
-        </div>
-        {post.status === "published" ? (
-          <Link
-            href={`/articles/${post.slug}`}
-            className="text-step-0 text-ink-muted hover:text-ink"
-          >
-            View live &rarr;
-          </Link>
-        ) : null}
-      </div>
+      <h1 className="text-step-3 font-normal text-ink">Edit post</h1>
 
       <PostForm
         action={action}
