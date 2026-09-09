@@ -86,6 +86,7 @@ export interface AdminProduct {
   priceCents: number;
   currency: string;
   imageUrl: string;
+  hoverImageUrl: string | null;
   productUrl: string;
   isWeeklyPick: boolean;
   createdAt: Date;
@@ -103,6 +104,7 @@ export const listProductsForAdmin = async (
     priceCents: row.priceCents,
     currency: row.currency,
     imageUrl: row.imageUrl,
+    hoverImageUrl: row.hoverImageUrl,
     productUrl: row.productUrl,
     isWeeklyPick: row.isWeeklyPick,
     createdAt: row.createdAt,
@@ -124,6 +126,7 @@ export const findProductById = async (
     priceCents: row.priceCents,
     currency: row.currency,
     imageUrl: row.imageUrl,
+    hoverImageUrl: row.hoverImageUrl,
     productUrl: row.productUrl,
     isWeeklyPick: row.isWeeklyPick,
     createdAt: row.createdAt,
@@ -174,6 +177,8 @@ export interface ProductInput {
   brandId: string;
   priceCents: number;
   imageUrl: string;
+  /** The cross-fade shot on the product card; not every product has one. */
+  hoverImageUrl: string | null;
   productUrl: string;
   isWeeklyPick: boolean;
 }

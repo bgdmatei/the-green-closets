@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Eyebrow } from "@/components/ui/eyebrow";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
   deletePostAction,
   updatePostAction,
 } from "@/features/admin/actions/post.actions";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PostForm } from "@/features/admin/components/post-form";
 import { requireAdminOrRedirect } from "@/server/auth/dal";
 import { getDb } from "@/server/db/client";
@@ -32,22 +31,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-14">
-      <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <div>
-          <Eyebrow>
-            Backoffice
-          </Eyebrow>
-          <h1 className="mt-3 text-step-3 font-normal text-ink">Edit post</h1>
-        </div>
-        {post.status === "published" ? (
-          <Link
-            href={`/articles/${post.slug}`}
-            className="text-step-0 text-ink-muted hover:text-ink"
-          >
-            View live &rarr;
-          </Link>
-        ) : null}
-      </div>
+      <h1 className="text-step-3 font-normal text-ink">Edit post</h1>
 
       <PostForm
         action={action}
@@ -65,15 +49,16 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         }}
       />
 
-      <form action={deletePostAction} className="mt-12 border-t border-border pt-6">
-        <input type="hidden" name="postId" value={post.id} />
-        <button
-          type="submit"
-          className="h-9 border border-border px-4 text-step-0 text-ink-muted transition-colors hover:border-ink hover:text-ink"
-        >
-          Delete this post
-        </button>
-      </form>
+      <div className="mt-12 border-t border-border pt-6">
+        <ConfirmDialog
+          trigger="Delete this post"
+          title="Delete this post?"
+          description={`"${post.title}" will be removed from the journal and any link to it will stop working. This cannot be undone.`}
+          confirmLabel="Delete post"
+          action={deletePostAction}
+          field={{ name: "postId", value: post.id }}
+        />
+      </div>
     </main>
   );
 }

@@ -7,8 +7,7 @@ import { Eyebrow } from "./eyebrow";
 import { Heading } from "./heading";
 
 const mediaTileVariants = cva(
-  "group relative isolate block overflow-hidden bg-surface-raised " +
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+  "relative isolate block overflow-hidden bg-surface-raised",
   {
     variants: {
       ratio: {
@@ -26,7 +25,13 @@ const mediaTileVariants = cva(
 );
 
 interface MediaTileProps extends VariantProps<typeof mediaTileVariants> {
-  href: string;
+  /**
+   * Where the tile leads. Omit it for a purely decorative banner — the tile
+   * then renders as a plain element and drops every interactive affordance,
+   * because something that cannot be clicked should not zoom under the pointer
+   * or accept keyboard focus.
+   */
+  href?: string;
   src: string;
   /**
    * Decorative by default: the tile's heading already names the destination,
@@ -67,18 +72,20 @@ export function MediaTile({
   headingAs = "h2",
   className,
 }: MediaTileProps) {
-  return (
-    <Link
-      href={href}
-      className={cn(mediaTileVariants({ ratio }), className)}
-    >
+  const content = (
+    <>
       <Image
         src={src}
         alt={alt}
         fill
         priority={priority}
         sizes={sizes}
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+        className={cn(
+          "object-cover",
+          // The zoom is an affordance: it says "this responds to you".
+          href &&
+            "transition-transform duration-700 ease-out group-hover:scale-[1.03]",
+        )}
       />
       {/*
         Keeps the overlaid type legible whatever the photograph does — these
@@ -112,6 +119,27 @@ export function MediaTile({
           )
         ) : null}
       </div>
+    </>
+  );
+
+  if (!href) {
+    return (
+      <div className={cn(mediaTileVariants({ ratio }), className)}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        mediaTileVariants({ ratio }),
+        "group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        className,
+      )}
+    >
+      {content}
     </Link>
   );
 }

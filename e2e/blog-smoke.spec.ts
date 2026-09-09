@@ -76,7 +76,9 @@ test("the weekly banner button restyles only on its own hover", async ({
   await page.goto("/");
 
   const tile = page.locator('main a[href="/week-picks"]').first();
-  const button = page.getByText("See the edit", { exact: false }).first();
+  // Located structurally rather than by its label: the point of this test is
+  // the hover behaviour, and it should not break when the copy is reworded.
+  const button = tile.locator('span[class*="border"]').first();
   await button.scrollIntoViewIfNeeded();
 
   const background = () =>
