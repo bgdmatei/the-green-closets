@@ -12,7 +12,6 @@ import { getDb } from "@/server/db/client";
 import { findPostById } from "@/server/db/posts.admin.repository";
 
 export const metadata: Metadata = { title: "Edit post" };
-export const dynamic = "force-dynamic";
 
 interface EditPostPageProps {
   params: Promise<{ id: string }>;

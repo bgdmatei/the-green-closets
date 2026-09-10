@@ -6,6 +6,7 @@ import type { Brand, ProductWithBrand } from "@/features/shop/types/shop.types";
 import { getDb } from "@/server/db/client";
 import {
   findBrands,
+  findNewArrivals,
   findProducts,
   findWeeklyPicks,
 } from "@/server/db/products.repository";
@@ -26,7 +27,7 @@ export const getProducts = cache(async (): Promise<ProductWithBrand[]> => {
 /** The newest items, for the "New in the closet" strip. */
 export const getNewArrivals = cache(
   async (limit = 8): Promise<ProductWithBrand[]> => {
-    return (await getProducts()).slice(0, limit);
+    return findNewArrivals(getDb(), limit);
   },
 );
 

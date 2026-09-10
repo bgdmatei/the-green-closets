@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq, ne, and } from "drizzle-orm";
+import { and, asc, desc, eq, ne } from "drizzle-orm";
 
 import { categories, posts } from "./schema";
 import type { Database } from "./client";
@@ -21,7 +21,8 @@ export interface AdminPostSummary {
   title: string;
   status: "draft" | "published";
   categoryName: string;
-  publishedAt: Date | null;
+  /** `YYYY-MM-DD`, matching the DATE column. Null while the post is a draft. */
+  publishedAt: string | null;
   updatedAt: Date;
   featured: boolean;
 }
@@ -57,13 +58,18 @@ const summarySelection = {
   featured: posts.featured,
 };
 
-/** Drafts first, then newest — the order you want when deciding what to work on. */
+/**
+ * Drafts first, then newest — the order you want when deciding what to work
+ * on. The enum values are "draft" | "published", so an ascending sort on
+ * status pins drafts to the top before newest-updated takes over within each
+ * group.
+ */
 export const listPosts = async (db: Database): Promise<AdminPostSummary[]> => {
   return db
     .select(summarySelection)
     .from(posts)
     .innerJoin(categories, eq(posts.categoryId, categories.id))
-    .orderBy(desc(posts.updatedAt));
+    .orderBy(asc(posts.status), desc(posts.updatedAt));
 };
 
 export const findPostById = async (
@@ -134,6 +140,13 @@ export const slugTakenByOther = async (
   return rows.length > 0;
 };
 
+/**
+ * Today as a `YYYY-MM-DD` string in UTC. The DATE column and every downstream
+ * formatter agree on UTC, so a post always renders as the day this function
+ * captured, regardless of where the server that ran the publish is located.
+ */
+const todayUtc = (): string => new Date().toISOString().slice(0, 10);
+
 export const createPost = async (
   db: Database,
   input: PostInput,
@@ -143,7 +156,7 @@ export const createPost = async (
     .values({
       ...input,
       // A post gets its date the moment it first goes live, not when drafted.
-      publishedAt: input.status === "published" ? new Date() : null,
+      publishedAt: input.status === "published" ? todayUtc() : null,
     })
     .returning({ id: posts.id });
 
@@ -165,7 +178,7 @@ export const updatePost = async (
       // when a post moves from draft to published for the first time.
       publishedAt:
         input.status === "published"
-          ? (current?.publishedAt ?? new Date())
+          ? (current?.publishedAt ?? todayUtc())
           : null,
       updatedAt: new Date(),
     })

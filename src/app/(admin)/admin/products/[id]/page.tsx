@@ -14,7 +14,6 @@ import { getDb } from "@/server/db/client";
 import { findProductById } from "@/server/db/products.repository";
 
 export const metadata: Metadata = { title: "Edit product" };
-export const dynamic = "force-dynamic";
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>;

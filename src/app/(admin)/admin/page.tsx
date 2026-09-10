@@ -11,7 +11,6 @@ import { listPosts } from "@/server/db/posts.admin.repository";
 import { formatPublishedDate } from "@/features/blog/lib/format-date";
 
 export const metadata: Metadata = { title: "Posts" };
-export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
   // Still gated here: the layout reads the session but does not enforce it.
@@ -66,7 +65,7 @@ export default async function AdminHomePage() {
 
               <span className="ml-auto text-step--1 text-ink-muted">
                 {post.publishedAt
-                  ? formatPublishedDate(post.publishedAt.toISOString().slice(0, 10))
+                  ? formatPublishedDate(post.publishedAt)
                   : "unpublished"}
               </span>
             </ListItem>

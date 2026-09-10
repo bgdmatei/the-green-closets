@@ -37,6 +37,13 @@ export const viewport = {
   initialScale: 1,
 };
 
+/**
+ * Every admin page reads cookies or admin-only data, so none of them can be
+ * prerendered. Declared once on the layout — segment config on a layout applies
+ * to every page beneath it, so the pages themselves stay quiet.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function AdminRootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
