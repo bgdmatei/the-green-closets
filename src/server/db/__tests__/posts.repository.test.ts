@@ -34,7 +34,7 @@ const seed = async () => {
       content: "<p>newest</p>",
       status: "published",
       categoryId: basics.id,
-      publishedAt: new Date("2026-04-19T00:00:00Z"),
+      publishedAt: "2026-04-19",
     },
     {
       slug: "older",
@@ -43,7 +43,7 @@ const seed = async () => {
       content: "<p>older</p>",
       status: "published",
       categoryId: seo.id,
-      publishedAt: new Date("2026-03-18T00:00:00Z"),
+      publishedAt: "2026-03-18",
     },
     {
       slug: "a-draft",

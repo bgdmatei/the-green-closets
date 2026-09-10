@@ -7,9 +7,6 @@ import { getAdminSession, isSafeReturnPath } from "@/server/auth/dal";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-// Reads cookies to decide what to show, so it cannot be prerendered.
-export const dynamic = "force-dynamic";
-
 interface LoginPageProps {
   searchParams: Promise<{ next?: string; error?: string }>;
 }

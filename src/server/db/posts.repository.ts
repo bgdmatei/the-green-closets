@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, exists, type SQL } from "drizzle-orm";
 
 import type { BlogCategory, BlogPost } from "@/features/blog/types/blog.types";
 import { categories, posts } from "./schema";
@@ -41,14 +41,16 @@ type PostSelectionRow = {
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   featured: boolean;
-  publishedAt: Date | null;
+  publishedAt: string | null;
   categorySlug: string;
   categoryName: string;
 };
 
 /**
  * A published post always has a date; the column is nullable only because
- * drafts have none, and drafts never reach this mapper.
+ * drafts have none, and drafts never reach this mapper. The column is a
+ * calendar date, so the string is already `YYYY-MM-DD` — no timezone-sensitive
+ * conversion happens here.
  */
 const toBlogPost = (row: PostSelectionRow): BlogPost => ({
   slug: row.slug,
@@ -60,7 +62,7 @@ const toBlogPost = (row: PostSelectionRow): BlogPost => ({
   featured: row.featured,
   categorySlug: row.categorySlug,
   categoryName: row.categoryName,
-  publishedAt: (row.publishedAt ?? new Date(0)).toISOString().slice(0, 10),
+  publishedAt: row.publishedAt ?? "1970-01-01",
 });
 
 /**
@@ -128,10 +130,37 @@ export const findCategoriesWithPublishedPosts = async (
   return rows;
 };
 
+/**
+ * One category by slug, but only if it has a published post — same rule as
+ * `findCategoriesWithPublishedPosts`, so the two never disagree about whether a
+ * category is "live". EXISTS lets Postgres stop at the first matching post
+ * rather than loading every category and filtering in memory, which matters on
+ * the category page and its `generateMetadata` — both of which call this.
+ */
 export const findCategoryBySlug = async (
   db: Database,
   slug: string,
 ): Promise<BlogCategory | null> => {
-  const all = await findCategoriesWithPublishedPosts(db);
-  return all.find((category) => category.slug === slug) ?? null;
+  const rows = await db
+    .select({ slug: categories.slug, name: categories.name })
+    .from(categories)
+    .where(
+      and(
+        eq(categories.slug, slug),
+        exists(
+          db
+            .select({ id: posts.id })
+            .from(posts)
+            .where(
+              and(
+                eq(posts.categoryId, categories.id),
+                eq(posts.status, "published"),
+              ),
+            ),
+        ),
+      ),
+    )
+    .limit(1);
+
+  return rows[0] ?? null;
 };

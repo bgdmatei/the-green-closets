@@ -17,6 +17,7 @@ import {
   findOrCreateBrand,
   findProductById,
   productSlugTaken,
+  setWeeklyPick,
   updateProduct,
 } from "@/server/db/products.repository";
 
@@ -136,7 +137,8 @@ export const deleteProductAction = async (formData: FormData): Promise<void> => 
 
 /**
  * Toggles a product in or out of the weekly edit straight from the list, which
- * is the whole point of the flag living on the product.
+ * is the whole point of the flag living on the product. Touches only the flag
+ * so a drifted brand name — or any other column — is not silently rewritten.
  */
 export const toggleWeeklyPickAction = async (
   formData: FormData,
@@ -144,27 +146,11 @@ export const toggleWeeklyPickAction = async (
   await requireAdmin();
 
   const productId = String(formData.get("productId") ?? "");
-  const current = await findProductById(getDb(), productId);
+  const db = getDb();
+  const current = await findProductById(db, productId);
   if (!current) redirect("/admin/products");
 
-  const db = getDb();
-  const brandId = (await findOrCreateBrand(
-    db,
-    current.brandName,
-    slugify(current.brandName),
-    null,
-  ));
-
-  await updateProduct(db, productId, {
-    slug: current.slug,
-    name: current.name,
-    brandId,
-    priceCents: current.priceCents,
-    imageUrl: current.imageUrl,
-    hoverImageUrl: current.hoverImageUrl ?? null,
-    productUrl: current.productUrl,
-    isWeeklyPick: !current.isWeeklyPick,
-  });
+  await setWeeklyPick(db, productId, !current.isWeeklyPick);
 
   revalidateShop();
   redirect("/admin/products");

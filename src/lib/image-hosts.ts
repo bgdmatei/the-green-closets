@@ -21,6 +21,22 @@ export interface ImageSource {
   pathnamePrefix?: string;
 }
 
+/**
+ * The Cloudinary account we own. Read from the environment so a different
+ * deploy — a fork, a staging branch, another site — cannot resize images out
+ * of the wrong account. `NEXT_PUBLIC_` because the same predicate runs in the
+ * browser (product-card, post-cover), so the value has to be present in the
+ * bundle. This is a hostname, not a secret; a public var is the correct shape.
+ */
+const cloudinaryAccount = process.env.NEXT_PUBLIC_CLOUDINARY_ACCOUNT?.trim();
+
+const cloudinarySource: ImageSource | null = cloudinaryAccount
+  ? {
+      hostname: "res.cloudinary.com",
+      pathnamePrefix: `/${cloudinaryAccount}/`,
+    }
+  : null;
+
 export const OPTIMIZABLE_IMAGE_SOURCES: readonly ImageSource[] = [
   { hostname: "images.unsplash.com" },
   /**
@@ -31,9 +47,11 @@ export const OPTIMIZABLE_IMAGE_SOURCES: readonly ImageSource[] = [
   /**
    * Our own photography. Files are uploaded to Cloudinary by hand and pasted
    * in as URLs, which leaves the editor's field — and the column behind it —
-   * unchanged whether an image arrives by upload or by paste.
+   * unchanged whether an image arrives by upload or by paste. Omitted when
+   * `NEXT_PUBLIC_CLOUDINARY_ACCOUNT` is not set, so a deploy without our own
+   * photography does not accidentally allow-list the shared Cloudinary host.
    */
-  { hostname: "res.cloudinary.com", pathnamePrefix: "/hzhhirkt/" },
+  ...(cloudinarySource ? [cloudinarySource] : []),
 ];
 
 /**

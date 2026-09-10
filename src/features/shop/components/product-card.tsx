@@ -6,6 +6,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { formatDomain } from "@/features/shop/lib/format-domain";
 import { formatPrice } from "@/features/shop/lib/format-price";
 import type { ProductWithBrand } from "@/features/shop/types/shop.types";
+import { canOptimizeImage } from "@/lib/image-hosts";
 
 interface ProductCardProps {
   product: ProductWithBrand;
@@ -35,25 +36,49 @@ export const ProductCard = ({ product, priority }: ProductCardProps) => {
       className="group block"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-surface-raised">
-        <Image
-          src={product.imageUrl}
-          alt={`${product.name}${product.colour ? ` in ${product.colour}` : ""}`}
-          fill
-          priority={priority}
-          sizes={GRID_SIZES}
-          className="object-cover"
-        />
+        {canOptimizeImage(product.imageUrl) ? (
+          <Image
+            src={product.imageUrl}
+            alt={`${product.name}${product.colour ? ` in ${product.colour}` : ""}`}
+            fill
+            priority={priority}
+            sizes={GRID_SIZES}
+            className="object-cover"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={product.imageUrl}
+            alt={`${product.name}${product.colour ? ` in ${product.colour}` : ""}`}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
+            decoding="async"
+            className="absolute inset-0 size-full object-cover"
+          />
+        )}
         {product.hoverImageUrl ? (
           // Second shot cross-fades in on hover. Decorative: it shows the same
           // garment the primary image already named.
-          <Image
-            src={product.hoverImageUrl}
-            alt=""
-            aria-hidden
-            fill
-            sizes={GRID_SIZES}
-            className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
+          canOptimizeImage(product.hoverImageUrl) ? (
+            <Image
+              src={product.hoverImageUrl}
+              alt=""
+              aria-hidden
+              fill
+              sizes={GRID_SIZES}
+              className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.hoverImageUrl}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            />
+          )
         ) : null}
       </div>
 

@@ -1,5 +1,6 @@
 import {
   boolean,
+  date,
   index,
   integer,
   pgEnum,
@@ -76,8 +77,14 @@ export const posts = pgTable(
      * reader-facing query filters on published first.
      */
     featured: boolean("featured").notNull().default(false),
-    /** Null until first published, so drafts have no date to display. */
-    publishedAt: timestamp("published_at", { withTimezone: true }),
+    /**
+     * The day a post is public. A calendar date, not a moment: a post is "from"
+     * a day, not from a specific second, so storing a timestamp would let the
+     * server's UTC offset shift the rendered day away from the one the author
+     * chose (a 23:30 UTC-3 publish otherwise renders as the next day in UTC).
+     * Null until first published, so drafts have no date to display.
+     */
+    publishedAt: date("published_at", { mode: "string" }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

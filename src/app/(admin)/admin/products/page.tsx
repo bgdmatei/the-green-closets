@@ -12,7 +12,6 @@ import { getDb } from "@/server/db/client";
 import { listProductsForAdmin } from "@/server/db/products.repository";
 
 export const metadata: Metadata = { title: "Shop" };
-export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
   // Still gated here: the layout reads the session but does not enforce it.
