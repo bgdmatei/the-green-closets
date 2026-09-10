@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq, ne, type SQL } from "drizzle-orm";
 
 import { brands, products } from "./schema";
 import type { Database } from "./client";
@@ -34,13 +34,23 @@ const selection = {
 
 type Row = Awaited<ReturnType<typeof selectProducts>>[number];
 
-const selectProducts = (db: Database, where?: ReturnType<typeof eq>) =>
-  db
+interface SelectProductsOptions {
+  where?: SQL;
+  limit?: number;
+}
+
+const selectProducts = (
+  db: Database,
+  { where, limit }: SelectProductsOptions = {},
+) => {
+  const query = db
     .select(selection)
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
     .where(where)
     .orderBy(desc(products.createdAt));
+  return limit === undefined ? query : query.limit(limit);
+};
 
 const toProduct = (row: Row): ProductWithBrand => ({
   slug: row.slug,
@@ -65,10 +75,19 @@ const toProduct = (row: Row): ProductWithBrand => ({
 export const findProducts = async (db: Database): Promise<ProductWithBrand[]> =>
   (await selectProducts(db)).map(toProduct);
 
+/** Newest products, capped at `limit`. Ordering matches `findProducts`. */
+export const findNewArrivals = async (
+  db: Database,
+  limit: number,
+): Promise<ProductWithBrand[]> =>
+  (await selectProducts(db, { limit })).map(toProduct);
+
 export const findWeeklyPicks = async (
   db: Database,
 ): Promise<ProductWithBrand[]> =>
-  (await selectProducts(db, eq(products.isWeeklyPick, true))).map(toProduct);
+  (await selectProducts(db, { where: eq(products.isWeeklyPick, true) })).map(
+    toProduct,
+  );
 
 export const findBrands = async (db: Database) =>
   db
@@ -115,7 +134,7 @@ export const findProductById = async (
   db: Database,
   id: string,
 ): Promise<AdminProduct | null> => {
-  const rows = await selectProducts(db, eq(products.id, id));
+  const rows = await selectProducts(db, { where: eq(products.id, id) });
   const row = rows[0];
   if (!row) return null;
   return {
@@ -195,6 +214,22 @@ export const updateProduct = async (
   await db
     .update(products)
     .set({ ...input, updatedAt: new Date() })
+    .where(eq(products.id, id));
+};
+
+/**
+ * Flip only the weekly-pick flag. Kept separate from `updateProduct` so the
+ * toggle in the list does not have to reconstruct — and rewrite — every other
+ * column from a stale summary.
+ */
+export const setWeeklyPick = async (
+  db: Database,
+  id: string,
+  isWeeklyPick: boolean,
+) => {
+  await db
+    .update(products)
+    .set({ isWeeklyPick, updatedAt: new Date() })
     .where(eq(products.id, id));
 };
 

@@ -78,7 +78,7 @@ const seed = async () => {
       // Everything already on the live site is, by definition, published.
       status: "published" as const,
       categoryId,
-      publishedAt: new Date(`${post.publishedAt}T00:00:00Z`),
+      publishedAt: post.publishedAt,
       updatedAt: new Date(),
     };
 

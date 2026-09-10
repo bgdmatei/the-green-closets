@@ -43,28 +43,49 @@ const revalidatePost = (slug: string, categorySlug?: string) => {
  * the result is thrown away. If the body sanitizes to nothing it was entirely
  * markup that will be stripped, and saving it would publish a blank article.
  * The stored value stays the author's Markdown, unmodified.
+ *
+ * Returns an explicit discriminated union so callers narrow on `ok` and cannot
+ * accidentally read `values` off an error branch.
  */
-const parseSubmission = async (formData: FormData, excludePostId?: string) => {
+type ParsedPostSubmission =
+  | {
+      ok: true;
+      values: ReturnType<typeof postInputSchema.parse>;
+      categoryId: string;
+      categorySlug: string;
+    }
+  | { ok: false; error: string };
+
+const parseSubmission = async (
+  formData: FormData,
+  excludePostId?: string,
+): Promise<ParsedPostSubmission> => {
   const parsed = postInputSchema.safeParse(readPostForm(formData));
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "That post is not valid" };
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "That post is not valid",
+    };
   }
 
   const values = parsed.data;
   const db = getDb();
 
   if (await slugTakenByOther(db, values.slug, excludePostId)) {
-    return { error: `The slug "${values.slug}" is already used by another post` };
+    return {
+      ok: false,
+      error: `The slug "${values.slug}" is already used by another post`,
+    };
   }
 
   if (sanitizeRichHtml(renderMarkdown(values.content)).trim().length === 0) {
-    return { error: "The body is empty once formatting is removed" };
+    return { ok: false, error: "The body is empty once formatting is removed" };
   }
 
   const categorySlug = slugify(values.categoryName);
   if (!categorySlug) {
-    return { error: "That category name cannot be turned into a URL" };
+    return { ok: false, error: "That category name cannot be turned into a URL" };
   }
 
   const categoryId = await findOrCreateCategory(
@@ -73,7 +94,7 @@ const parseSubmission = async (formData: FormData, excludePostId?: string) => {
     categorySlug,
   );
 
-  return { values, categoryId, categorySlug };
+  return { ok: true, values, categoryId, categorySlug };
 };
 
 export const createPostAction = async (
@@ -85,7 +106,7 @@ export const createPostAction = async (
   await requireAdmin();
 
   const result = await parseSubmission(formData);
-  if ("error" in result) return result;
+  if (!result.ok) return { error: result.error };
 
   const { values, categoryId, categorySlug } = result;
   await createPost(getDb(), {
@@ -115,7 +136,7 @@ export const updatePostAction = async (
   if (!existing) return { error: "That post no longer exists" };
 
   const result = await parseSubmission(formData, postId);
-  if ("error" in result) return result;
+  if (!result.ok) return { error: result.error };
 
   const { values, categoryId, categorySlug } = result;
   await updatePost(getDb(), postId, {

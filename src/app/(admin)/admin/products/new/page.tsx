@@ -5,7 +5,6 @@ import { ProductForm } from "@/features/admin/components/product-form";
 import { requireAdminOrRedirect } from "@/server/auth/dal";
 
 export const metadata: Metadata = { title: "Add product" };
-export const dynamic = "force-dynamic";
 
 export default async function NewProductPage() {
   await requireAdminOrRedirect("/admin/products/new");
